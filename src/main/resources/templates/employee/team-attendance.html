@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Team Attendance | CloudNex</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .attendance-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .status-PRESENT { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.1); }
+        .status-ABSENT { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.1); }
+        
+        .role-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.5rem 1rem;
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--brand-green);
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+        }
+
+        .timing-code {
+            background: rgba(0,0,0,0.2);
+            padding: 0.4rem 0.8rem;
+            border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar('team_attendance')}"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/header :: header}" 
+             th:with="pageTitle='Team Oversight', pageSubtitle='Real-time session monitoring and management'"></div>
+
+        <div class="dashboard-content">
+            <div class="action-card">
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <h2 style="font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em;">
+                        Team Attendance Matrix <span style="color: var(--text-secondary); font-weight: 500; font-size: 0.9rem;" th:text="${' - ' + T(java.time.LocalDate).now()}"></span>
+                    </h2>
+                    <div class="role-indicator"><i class="fas fa-shield-alt"></i> MANAGEMENT LAYER</div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Intern Name</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                                <th>Verification Status</th>
+                                <th class="text-end">Modifications</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="record : ${teamAttendance}">
+                                <td style="font-weight: 700;" th:text="${record.user.fullName}">Intern Name</td>
+                                <td><span class="timing-code" th:text="${record.checkInTime}">09:00</span></td>
+                                <td><span class="timing-code" th:text="${record.checkOutTime}">18:00</span></td>
+                                <td>
+                                    <span class="badge" 
+                                          th:classappend="${record.status.name() == 'PRESENT' ? 'badge-success' : 'badge-danger'}"
+                                          th:text="${record.status}">PRESENT</span>
+                                </td>
+                                <td class="text-end">
+                                    <span th:if="${record.modifiedByAdmin}" class="badge" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">ADMIN OVERRIDE</span>
+                                    <span th:unless="${record.modifiedByAdmin}" style="color: var(--text-secondary); opacity: 0.5; font-size: 0.85rem;">None</span>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(teamAttendance)}">
+                                <td colspan="5" class="text-center py-5" style="color: var(--text-secondary);">
+                                    <i class="fas fa-satellite-dish mb-4" style="font-size: 2.5rem; opacity: 0.1; display: block;"></i>
+                                    No node activity detected for your team sector today.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

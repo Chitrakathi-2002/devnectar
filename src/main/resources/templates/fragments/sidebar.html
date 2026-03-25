@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+</head>
+<body>
+    <div th:fragment="sidebar(activePage)" class="sidebar">
+        <div class="brand">
+            <img th:src="@{/images/devNectar_logo.png}" alt="devNectar Logo" class="brand-logo">
+        </div>
+        <ul class="nav-links">
+            <!-- ADMIN SECTION -->
+            <li sec:authorize="hasRole('ROLE_ADMIN')">
+                <a th:href="@{/admin/dashboard}" th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
+                    <i class="fas fa-th-large"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ROLE_ADMIN')">
+                <a th:href="@{/attendance/stats}" th:classappend="${activePage == 'stats' ? 'active' : ''}">
+                    <i class="fas fa-chart-line"></i> <span>Analytics</span>
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ROLE_ADMIN')">
+                <a th:href="@{/admin/attendance/history}" th:classappend="${activePage == 'global_records' ? 'active' : ''}">
+                    <i class="fas fa-history"></i> <span>Attendance</span>
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ROLE_ADMIN')">
+                <a th:href="@{/admin/staff}" th:classappend="${activePage == 'staff_management' ? 'active' : ''}">
+                    <i class="fas fa-users"></i> <span>Staff Management</span>
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ROLE_ADMIN')">
+                <a th:href="@{/admin/reports}" th:classappend="${activePage == 'daily_reports' ? 'active' : ''}">
+                    <i class="fas fa-file-alt"></i> <span>Daily Reports</span>
+                </a>
+            </li>
+
+            <!-- EMPLOYEE SECTION -->
+            <li sec:authorize="hasRole('ROLE_EMPLOYEE')">
+                <a th:href="@{/employee/dashboard}" th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ROLE_EMPLOYEE')">
+                <a th:href="@{/employee/report/approvals}" th:classappend="${activePage == 'approvals' ? 'active' : ''}">
+                    <i class="fas fa-check-circle"></i> <span>Approvals</span>
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ROLE_EMPLOYEE')">
+                <a th:href="@{/employee/attendance}" th:classappend="${activePage == 'attendance' ? 'active' : ''}">
+                    <i class="fas fa-user-clock"></i> <span>My Attendance</span>
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ROLE_EMPLOYEE')">
+                <a th:href="@{/attendance/stats}" th:classappend="${activePage == 'stats' ? 'active' : ''}">
+                    <i class="fas fa-chart-line"></i> <span>Analytics</span>
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ROLE_EMPLOYEE')">
+                <a th:href="@{/employee/report/history}" th:classappend="${activePage == 'reports' ? 'active' : ''}">
+                    <i class="fas fa-folder-open"></i> <span>Team Reports</span>
+                </a>
+            </li>
+
+            <!-- INTERN SECTION -->
+            <li sec:authorize="hasRole('ROLE_INTERN')">
+                <a th:href="@{/intern/dashboard}" th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ROLE_INTERN')">
+                <a th:href="@{/intern/attendance}" th:classappend="${activePage == 'attendance' ? 'active' : ''}">
+                    <i class="fas fa-fingerprint"></i> <span>Mark Attendance</span>
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ROLE_INTERN')">
+                <a th:href="@{/intern/reports}" th:classappend="${activePage == 'reports' ? 'active' : ''}">
+                    <i class="fas fa-clipboard-list"></i> <span>Daily Reports</span>
+                </a>
+            </li>
+            <li sec:authorize="hasRole('ROLE_INTERN')">
+                <a th:href="@{/attendance/stats}" th:classappend="${activePage == 'stats' ? 'active' : ''}">
+                    <i class="fas fa-chart-bar"></i> <span>My Analytics</span>
+                </a>
+            </li>
+
+            <!-- COMMON LINKS -->
+            <li>
+                <a th:href="@{/profile}" th:classappend="${activePage == 'profile' ? 'active' : ''}">
+                    <i class="fas fa-user-circle"></i> <span>My Profile</span>
+                </a>
+            </li>
+        </ul>
+        
+        <div style="margin-top: auto; padding: 1.5rem;">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-danger" style="width: 100%; justify-content: center; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; font-weight: 600;">
+                    <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

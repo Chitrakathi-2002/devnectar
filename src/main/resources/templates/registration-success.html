@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration Success | devNectar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            display: flex;
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh;
+            background: #0a0f18;
+            font-family: 'Outfit', sans-serif;
+            color: white;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .success-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 4rem;
+            border-radius: 32px;
+            width: 100%;
+            max-width: 550px;
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            animation: cardEntrance 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: scale(0.9) translateY(30px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--brand-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 2.5rem;
+            box-shadow: 0 0 30px var(--brand-glow);
+            animation: iconPulse 2s infinite alternate;
+        }
+
+        @keyframes iconPulse {
+            from { transform: scale(1); box-shadow: 0 0 20px var(--brand-glow); }
+            to { transform: scale(1.1); box-shadow: 0 0 40px var(--brand-glow); }
+        }
+
+        h2 { font-size: 2.25rem; font-weight: 800; margin-bottom: 1.25rem; letter-spacing: -1px; }
+        p { color: var(--text-secondary); line-height: 1.7; margin-bottom: 3rem; font-size: 1.1rem; }
+        
+        .login-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: linear-gradient(135deg, var(--brand-green) 0%, #059669 100%);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 16px;
+            text-decoration: none;
+            font-weight: 800;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px var(--brand-glow);
+        }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px var(--brand-glow); }
+    </style>
+</head>
+<body>
+    <div class="success-card">
+        <div class="success-icon">✓</div>
+        <h2>Registration Successful!</h2>
+        <p>Your account has been created successfully. Please wait for an administrator to approve your registration. You will be able to log in once your account is enabled.</p>
+        <a th:href="@{/login}" class="login-btn">Back to Login</a>
+    </div>
+</body>
+</html>

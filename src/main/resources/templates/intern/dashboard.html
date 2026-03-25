@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Intern Dashboard | devNectar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/header :: header}" 
+             th:with="pageTitle='Intern Dashboard', pageSubtitle='Manage your daily reports and attendance'"></div>
+
+        <div class="dashboard-content">
+            <!-- Stat Cards -->
+            <div class="card-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--brand-green);">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <div class="stat-label">Days Completed</div>
+                        <div class="stat-value" th:text="${daysCompleted}">18</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <div>
+                        <div class="stat-label">Pending Reports</div>
+                        <div class="stat-value" th:text="${pendingReports}">2</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
+                <!-- Attendance & Actions -->
+                <div class="column">
+                    <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Quick Actions</h2>
+                    <div class="card" style="margin-bottom: 2rem;">
+                        <h3 style="font-size: 1rem; margin-bottom: 1rem; color: var(--text-primary);">Attendance Status</h3>
+                        
+                        <div th:if="${todayAttendance == null}" class="text-center">
+                            <p class="text-secondary" style="margin-bottom: 1.5rem; font-size: 0.9rem;">You haven't marked your attendance for today yet.</p>
+                            <form th:action="@{/intern/attendance/punch-in}" method="post">
+                                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                                    <i class="fas fa-sign-in-alt"></i> CHECK IN
+                                </button>
+                            </form>
+                        </div>
+
+                        <div th:if="${todayAttendance != null and todayAttendance.checkOutTime == null}" class="text-center">
+                            <div style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                                <p style="color: var(--brand-green); font-weight: 600; margin: 0;">Punched In</p>
+                                <p style="font-size: 1.25rem; font-weight: 700; margin: 0.5rem 0;" th:text="${todayAttendance.checkInTime}">09:00</p>
+                            </div>
+                            <form th:action="@{/intern/attendance/punch-out}" method="post">
+                                <button type="submit" class="btn btn-danger" style="width: 100%; justify-content: center; background: rgba(239, 68, 68, 0.1);">
+                                    <i class="fas fa-sign-out-alt"></i> CHECK OUT
+                                </button>
+                            </form>
+                        </div>
+
+                        <div th:if="${todayAttendance != null and todayAttendance.checkOutTime != null}" class="text-center">
+                            <div style="background: rgba(99, 102, 241, 0.1); padding: 1rem; border-radius: 12px;">
+                                <i class="fas fa-check-double" style="font-size: 2rem; color: var(--accent); margin-bottom: 1rem;"></i>
+                                <p style="color: var(--accent); font-weight: 700; margin: 0;">Shift Completed</p>
+                                <p class="text-secondary" style="font-size: 0.85rem; margin-top: 0.5rem;">See you tomorrow!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="font-size: 1rem; margin-bottom: 1rem; color: var(--text-primary);">Daily Report</h3>
+                        <p class="text-secondary" style="margin-bottom: 1.5rem; font-size: 0.9rem;">Don't forget to submit your report for today's work.</p>
+                        <a th:href="@{/intern/reports}" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                            <i class="fas fa-plus"></i> Work Portal
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Recent Reports -->
+                <div class="column">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 style="font-size: 1.25rem;">Recent Daily Reports</h2>
+                        <a th:href="@{/intern/reports}" style="font-size: 0.85rem; color: var(--brand-green); text-decoration: none;">View All History</a>
+                    </div>
+                    <div class="table-responsive card" style="padding: 0;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="report : ${reports}">
+                                    <td th:text="${report.submissionDate}">Mar 24, 2026</td>
+                                    <td>
+                                        <div th:text="${report.title}">Daily Task Update</div>
+                                        <div th:if="${report.managerFeedback != null}" 
+                                             class="text-secondary" 
+                                             style="font-size: 0.75rem; margin-top: 0.25rem; font-style: italic;">
+                                            <i class="fas fa-comment-dots"></i> <span th:text="${report.managerFeedback}">Feedback here...</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge" 
+                                              th:classappend="${report.status.name() == 'APPROVED' ? 'badge-success' : (report.status.name() == 'REVISION_REQUESTED' ? 'badge-warning' : (report.status.name() == 'CANCELLED' ? 'badge-danger' : 'badge-info'))}" 
+                                              th:text="${report.status}">SUBMITTED</span>
+                                    </td>
+                                    <td>
+                                        <a th:if="${report.status.name() == 'REVISION_REQUESTED'}" 
+                                           th:href="@{/intern/reports}" 
+                                           class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem;">Fix Now</a>
+                                        <span th:unless="${report.status.name() == 'REVISION_REQUESTED'}"
+                                              class="text-secondary" style="font-size: 0.75rem;">-</span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(reports)}">
+                                    <td colspan="4" class="text-center" style="padding: 3rem; color: var(--text-secondary);">No reports submitted yet.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

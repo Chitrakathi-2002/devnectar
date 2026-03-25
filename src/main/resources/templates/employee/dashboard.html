@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Dashboard | devNectar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/header :: header}" 
+             th:with="pageTitle='Employee Portal', pageSubtitle='Team management and progress tracking'"></div>
+
+        <div class="dashboard-content">
+            <div class="card-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><i class="fas fa-users"></i></div>
+                    <div>
+                        <div class="stat-label">My Team</div>
+                        <div class="stat-value">12</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i class="fas fa-file-alt"></i></div>
+                    <div>
+                        <div class="stat-label">Pending Approval</div>
+                        <div class="stat-value">5</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i class="fas fa-calendar-check"></i></div>
+                    <div>
+                        <div class="stat-label">Monthly Rate</div>
+                        <div class="stat-value">88%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2.5rem;">
+                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;">Recent Activities</h2>
+                <div class="card">
+                    <p style="color: var(--text-secondary);">Welcome to your management portal. You can oversee team progress and approve intern reports from the sidebar.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

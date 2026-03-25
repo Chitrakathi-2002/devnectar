@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>403 Forbidden | CloudNex</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body { justify-content: center; align-items: center; text-align: center; }
+        .error-card {
+            background: var(--bg-card);
+            padding: 3rem;
+            border-radius: 20px;
+            max-width: 500px;
+            border: 1px solid var(--border-color);
+        }
+        .error-code {
+            font-size: 6rem;
+            font-weight: 800;
+            color: var(--danger);
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-card">
+        <div class="error-code">403</div>
+        <h2 style="margin-bottom: 1rem;">Access Denied</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+            Sorry, you don't have permission to access this area of the portal.
+        </p>
+        <a th:href="@{/dashboard}" class="btn btn-primary">Return to Dashboard</a>
+    </div>
+</body>
+</html>

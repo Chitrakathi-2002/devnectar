@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | devNectar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a0f18;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background elements */
+        .bg-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--brand-glow) 0%, transparent 70%);
+            z-index: 0;
+            filter: blur(100px);
+            opacity: 0.4;
+            animation: pulse-top 15s infinite alternate;
+            top: -10%;
+            left: -10%;
+        }
+
+        .bg-glow-bottom {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            z-index: 0;
+            filter: blur(100px);
+            opacity: 0.4;
+            animation: pulse-bottom 12s infinite alternate;
+            bottom: -10%;
+            right: -10%;
+        }
+
+        @keyframes pulse-top { from { transform: translate(0, 0) scale(1); } to { transform: translate(15%, 15%) scale(1.1); } }
+        @keyframes pulse-bottom { from { transform: translate(0, 0) scale(1); } to { transform: translate(-15%, -15%) scale(1.1); } }
+
+        .login-container {
+            width: 100%;
+            max-width: 480px;
+            padding: 1.5rem;
+            position: relative;
+            z-index: 10;
+            animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 2.5rem 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255,255,255,0.05);
+            width: 100%;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header .brand {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1.2px;
+        }
+
+        .auth-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .form-group { margin-bottom: 1.25rem; }
+
+        .form-group label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+            margin-left: 0.25rem;
+        }
+
+        .input-wrapper { position: relative; }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            transition: color 0.3s;
+        }
+
+        .form-control {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.25) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 14px !important;
+            padding: 0.9rem 1.25rem 0.9rem 3.25rem !important;
+            color: white !important;
+            font-size: 0.95rem !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        .form-control:focus {
+            border-color: var(--brand-green) !important;
+            background: rgba(0, 0, 0, 0.4) !important;
+            box-shadow: 0 0 0 4px var(--brand-glow) !important;
+            outline: none;
+        }
+
+        .form-control:focus + i { color: var(--brand-green); }
+
+        .btn-auth {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--brand-green) 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 20px var(--brand-glow);
+        }
+
+        .btn-auth:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px var(--brand-glow);
+            filter: brightness(1.1);
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .footer-text a {
+            color: var(--brand-green);
+            text-decoration: none;
+            font-weight: 700;
+            margin-left: 0.25rem;
+            transition: color 0.2s;
+        }
+
+        .footer-text a:hover { color: white; text-decoration: underline; }
+
+        .alert {
+            padding: 0.85rem 1.1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 0.825rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border: 1px solid;
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+
+        .alert-error { background: rgba(239, 68, 68, 0.1); color: #f87171; border-color: rgba(239, 68, 68, 0.2); }
+        .alert-success { background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.2); }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="bg-glow-bottom"></div>
+    <div class="login-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="brand">
+                    <img th:src="@{/images/devNectar_logo.png}" alt="devNectar Logo" class="brand-logo" style="margin: 0 auto; height: 50px;">
+                </div>
+                <h2>Welcome Back</h2>
+                <p>Enter your credentials to access the portal</p>
+            </div>
+
+            <div th:if="${param.registered}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                Registration successful! Pending admin approval.
+            </div>
+            <div th:if="${param.error}" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                Invalid username or password.
+            </div>
+            <div th:if="${param.logout}" class="alert alert-success">
+                <i class="fas fa-info-circle"></i>
+                Successfully logged out.
+            </div>
+            <div th:if="${param.unauthorized}" class="alert alert-error">
+                <i class="fas fa-shield-alt"></i>
+                Access denied. Unauthorized area.
+            </div>
+            <div th:if="${param.deactivated}" class="alert alert-error">
+                <i class="fas fa-user-slash"></i>
+                Your account has been deactivated. Please contact your administrator.
+            </div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="form-group">
+                    <label>Username</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="username" class="form-control" placeholder="Your username" required autofocus>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="password" class="form-control" placeholder="Your password" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-auth">
+                    Sign In <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="footer-text">
+                New to the platform? <a th:href="@{/register}">Create an account</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

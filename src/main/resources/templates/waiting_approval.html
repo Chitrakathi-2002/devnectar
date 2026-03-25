@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Waiting for Approval | devNectar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { 
+            display: flex;
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh;
+            background: #0a0f18;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 4rem;
+            border-radius: 32px;
+            width: 100%;
+            max-width: 550px;
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .brand { font-size: 2.5rem; font-weight: 800; margin-bottom: 2rem; letter-spacing: -1px; }
+        .brand span { color: var(--brand-green); text-shadow: 0 0 20px var(--brand-glow); }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            padding: 0.6rem 1.5rem;
+            border-radius: 99px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        p { color: var(--text-secondary); line-height: 1.7; margin-bottom: 3rem; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="brand">
+            <img th:src="@{/images/devNectar_logo.png}" alt="devNectar Logo" class="brand-logo" style="margin: 0 auto; height: 50px;">
+        </div>
+        <div class="badge-warning"><i class="fas fa-clock me-2"></i> Approval Protocol Active</div>
+        <p>
+            Welcome to the network. Your credentials are currently being verified by the security layer.
+            Access will be provisioned once an administrator authorizes your node.
+        </p>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="btn btn-danger w-100 justify-content-center">
+                <i class="fas fa-power-off"></i> Disconnect Session
+            </button>
+        </form>
+    </div>
+</body>
+</html>

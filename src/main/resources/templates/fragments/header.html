@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+    <header th:fragment="header" class="header">
+        <div class="header-left d-flex align-items-center gap-3">
+            <button id="hamburger" class="hamburger d-lg-none">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="page-title">
+                <h1 th:text="${pageTitle != null ? pageTitle : 'devNectar Portal'}" style="font-size: 1.25rem; font-weight: 800;">Dashboard</h1>
+                <p class="text-secondary d-none d-sm-block" style="font-size: 0.75rem;" th:text="${pageSubtitle != null ? pageSubtitle : 'Workforce management system'}">Overview</p>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <!-- Theme Toggle -->
+            <button id="theme-toggle" class="theme-toggle" title="Toggle Theme">
+                <i class="fas fa-moon"></i>
+            </button>
+            
+            <!-- User Profile -->
+            <div class="user-profile" th:if="${currentUser != null}">
+                <div class="user-info text-end d-none d-md-flex flex-column">
+                    <span class="user-name fw-bold" th:text="${currentUser.username}" style="font-size: 0.85rem;">Username</span>
+                    <div class="d-flex gap-1 justify-content-end">
+                        <span th:each="role : ${currentUser.roles}" 
+                              th:text="${#strings.replace(role.name, 'ROLE_', '')}"
+                              class="badge"
+                              th:classappend="${role.name == 'ROLE_ADMIN' ? 'badge-danger' : (role.name == 'ROLE_EMPLOYEE' ? 'badge-primary' : 'badge-success')}"
+                              style="font-size: 0.55rem; padding: 2px 4px;">ADMIN</span>
+                    </div>
+                </div>
+                <div class="profile-img-wrapper">
+                    <img th:src="${currentUser.profileImagePath != null ? currentUser.profileImagePath : 'https://ui-avatars.com/api/?name=' + currentUser.fullName + '&background=10b981&color=fff'}" 
+                         alt="Profile" 
+                         style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover;">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Load Theme script -->
+        <script th:src="@{/js/theme-toggle.js}"></script>
+    </header>
+</body>
+</html>

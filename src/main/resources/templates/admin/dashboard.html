@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard | devNectar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .admin-stat-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 28px;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-stat-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .admin-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .admin-stat-card:hover::before { opacity: 1; }
+
+        .admin-stat-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .stat-meta { flex-grow: 1; }
+        .stat-label { font-size: 0.75rem; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+        .stat-value { font-size: 1.75rem; font-weight: 800; color: white; letter-spacing: -0.02em; }
+        .stat-sub { font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem; font-weight: 500; }
+
+        .action-required-badge {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(239, 68, 68, 0.1);
+        }
+
+        .registration-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 32px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .identity-node {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .identity-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--brand-green) 0%, var(--accent) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: white;
+            font-size: 1.1rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/header :: header}" 
+             th:with="pageTitle='Admin Nexus', pageSubtitle='Global workforce analytics and system optimization'"></div>
+
+        <div class="dashboard-content">
+            <div class="card-grid mb-5">
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <div class="stat-meta">
+                        <div class="stat-label">Total Staff</div>
+                        <div class="stat-value" th:text="${employeeCount ?: '0'}">0</div>
+                        <div class="stat-sub">Active Nodes</div>
+                    </div>
+                </div>
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="stat-meta">
+                        <div class="stat-label">Pending Entry</div>
+                        <div class="stat-value" th:text="${pendingUsers.size()}">0</div>
+                        <div class="stat-sub">Review Required</div>
+                    </div>
+                </div>
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                        <i class="fas fa-broadcast-tower"></i>
+                    </div>
+                    <div class="stat-meta">
+                        <div class="stat-label">Intern Sync</div>
+                        <div class="stat-value">
+                            <span th:text="${internsPresent ?: '0'}">0</span>/<span th:text="${internCount ?: '0'}">0</span>
+                        </div>
+                        <div class="stat-sub">Active Deployments</div>
+                    </div>
+                </div>
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="stat-meta">
+                        <div class="stat-label">Logs Processed</div>
+                        <div class="stat-value" th:text="${reportsToday ?: '0'}">0</div>
+                        <div class="stat-sub">Daily cycle</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="registration-card">
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <div class="d-flex align-items-center gap-4">
+                        <div style="width: 48px; height: 48px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div>
+                            <h2 style="font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; margin: 0;">Authorization Queue</h2>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">Inbound registration requests awaiting node assignment</p>
+                        </div>
+                    </div>
+                    <div class="action-required-badge" th:if="${not #lists.isEmpty(pendingUsers)}">
+                        <i class="fas fa-shield-exclamation"></i>
+                        <span th:text="${pendingUsers.size() + ' PENDING AUTHORIZATIONS'}">1 PENDING AUTHORIZATIONS</span>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Identity Node</th>
+                                <th>Terminal ID</th>
+                                <th>Access Point (Email)</th>
+                                <th class="text-end">Authorization Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="user : ${pendingUsers}">
+                                <td>
+                                    <div class="identity-node">
+                                        <div class="identity-avatar" th:text="${user.fullName != null ? #strings.substring(user.fullName,0,1) : 'U'}">U</div>
+                                        <span th:text="${user.fullName}" style="font-weight: 700;">Full Name</span>
+                                    </div>
+                                </td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--accent);" th:text="${user.username}">Username</td>
+                                <td th:text="${user.email}" style="color: var(--text-secondary);">Email</td>
+                                <td class="text-end">
+                                    <div class="d-flex gap-2 justify-content-end">
+                                        <form th:action="@{'/admin/approve/' + ${user.id}}" method="post">
+                                            <button type="submit" class="btn btn-primary btn-sm px-4" style="border-radius: 10px; font-weight: 700;">
+                                                Authorize
+                                            </button>
+                                        </form>
+                                        <form th:action="@{'/admin/reject/' + ${user.id}}" method="post">
+                                            <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.1); border-radius: 10px; padding: 0.5rem 1rem; font-size: 0.8rem; font-weight: 700;">
+                                                Void
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(pendingUsers)}">
+                                <td colspan="4" class="text-center py-5" style="color: var(--text-secondary);">
+                                    <i class="fas fa-check-double mb-4" style="font-size: 3rem; opacity: 0.1; display: block;"></i>
+                                    All authorization requests have been synchronized. Queue is empty.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

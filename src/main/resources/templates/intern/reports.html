@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Reports | CloudNex</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .report-modal {
+            display: none;
+            position: fixed;
+            z-index: 5000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(20px);
+            align-items: center; justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-nexus {
+            background: var(--bg-surface);
+            padding: 3.5rem;
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 700px;
+            border-radius: 40px;
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8);
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .feedback-bubble {
+            background: rgba(245, 158, 11, 0.05);
+            border: 1px solid rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 1.25rem;
+            margin-top: 1rem;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 12px;
+        }
+
+        .inspect-badge {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center; justify-content: center;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--brand-green);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid rgba(16, 185, 129, 0.1);
+        }
+
+        .inspect-badge:hover {
+            background: var(--brand-green);
+            color: white;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar('reports')}"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/header :: header}" 
+             th:with="pageTitle='Work Contributions', pageSubtitle='Synchronize your daily activity payloads with the core node'"></div>
+
+        <div class="dashboard-content">
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <div class="d-flex align-items-center gap-4">
+                    <div style="width: 48px; height: 48px; background: rgba(99, 102, 241, 0.1); color: var(--accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h2 style="font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; margin: 0;">Submission Stream</h2>
+                </div>
+                <button class="btn btn-primary" onclick="openReportModal('newReportModal')">
+                    <i class="fas fa-plus"></i> NEW DEPLOYMENT
+                </button>
+            </div>
+
+            <div class="card p-0">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Cycle Date</th>
+                                <th>Contribution Subject</th>
+                                <th>Resource Hours</th>
+                                <th>Node Status</th>
+                                <th class="text-end">Management</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="report : ${reports}">
+                                <td style="font-weight: 700;" th:text="${report.submissionDate}">Date</td>
+                                <td>
+                                    <div th:text="${report.title}" style="font-weight: 800; font-size: 1rem; color: white;">Title</div>
+                                    <div th:if="${report.managerFeedback}" class="feedback-bubble">
+                                        <i class="fas fa-comment-dots text-warning"></i> 
+                                        <div>
+                                            <span class="label-micro" style="margin-bottom: 0.25rem;">Validator Feedback</span>
+                                            <span th:text="${report.managerFeedback}">Feedback Body</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2" style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent);">
+                                        <i class="fas fa-hourglass-half"></i>
+                                        <span th:text="${report.hours + ' HRS'}">8.0 HRS</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span th:class="'badge ' + ${report.status.name() == 'APPROVED' ? 'badge-success' : (report.status.name() == 'REVISION_REQUESTED' ? 'badge-warning' : (report.status.name() == 'CANCELLED' ? 'badge-danger' : 'badge-info'))}"
+                                          th:text="${report.status}">SUBMITTED</span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-flex gap-2 justify-content-end">
+                                        <button th:if="${report.status.name() == 'REVISION_REQUESTED'}" 
+                                                class="btn btn-sm" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.1); border-radius: 10px; font-weight: 800;"
+                                                th:onclick="'openEditModal(' + ${report.id} + ', \'' + ${report.title} + '\', \'' + ${report.description} + '\', ' + ${report.hours} + ')'">
+                                            REVISE
+                                        </button>
+                                        <div class="inspect-badge" th:onclick="'viewDetails(\'' + ${report.description} + '\')'">
+                                            <i class="fas fa-eye"></i>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(reports)}">
+                                <td colspan="5" class="text-center py-5" style="color: var(--text-secondary);">
+                                    <i class="fas fa-satellite-dish mb-4" style="font-size: 3rem; opacity: 0.1; display: block;"></i>
+                                    Waiting for initial activity transmission. No reports in memory.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Report Modal -->
+    <div id="newReportModal" class="report-modal">
+        <div class="modal-nexus">
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <h3 style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em;">New Contribution</h3>
+                <button class="btn-close btn-close-white" onclick="closeReportModal('newReportModal')"></button>
+            </div>
+            <form th:action="@{/intern/reports/submit}" method="post">
+                <div class="mb-5">
+                    <label class="label-micro" style="margin-bottom: 0.75rem;">Subject Identifier</label>
+                    <input type="text" name="title" class="form-control" placeholder="e.g. Node API Integration" required>
+                </div>
+                <div class="mb-5">
+                    <label class="label-micro" style="margin-bottom: 0.75rem;">Activity Payload (Description)</label>
+                    <textarea name="description" class="form-control" rows="5" placeholder="Detailed summary of contributions..." required></textarea>
+                </div>
+                <div class="mb-5">
+                    <label class="label-micro" style="margin-bottom: 0.75rem;">Resource Intensity (Hours)</label>
+                    <input type="number" step="0.5" name="hours" class="form-control" value="8.0" required>
+                </div>
+                <div class="d-flex justify-content-end gap-3 pt-4 border-top border-secondary border-opacity-20">
+                    <button type="button" class="btn" style="background: rgba(255,255,255,0.05); color: white;" onclick="closeReportModal('newReportModal')">Abort</button>
+                    <button type="submit" class="btn btn-primary px-5">Publish Deployment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Report Modal -->
+    <div id="editReportModal" class="report-modal">
+        <div class="modal-nexus">
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <h3 style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em;">Revision Sync</h3>
+                <button class="btn-close btn-close-white" onclick="closeReportModal('editReportModal')"></button>
+            </div>
+            <form id="editForm" method="post">
+                <div class="mb-5">
+                    <label class="label-micro" style="margin-bottom: 0.75rem;">Subject Identifier</label>
+                    <input type="text" id="editTitle" name="title" class="form-control" required>
+                </div>
+                <div class="mb-5">
+                    <label class="label-micro" style="margin-bottom: 0.75rem;">Activity Payload (Description)</label>
+                    <textarea id="editDescription" name="description" class="form-control" rows="5" required></textarea>
+                </div>
+                <div class="mb-5">
+                    <label class="label-micro" style="margin-bottom: 0.75rem;">Resource Intensity (Hours)</label>
+                    <input type="number" step="0.5" id="editHours" name="hours" class="form-control" required>
+                </div>
+                <div class="d-flex justify-content-end gap-3 pt-4 border-top border-secondary border-opacity-20">
+                    <button type="button" class="btn" style="background: rgba(255,255,255,0.05); color: white;" onclick="closeReportModal('editReportModal')">Abort</button>
+                    <button type="submit" class="btn btn-primary px-5">Apply Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openReportModal(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+
+        function closeReportModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function openEditModal(id, title, desc, hours) {
+            document.getElementById('editForm').action = '/intern/reports/update/' + id;
+            document.getElementById('editTitle').value = title;
+            document.getElementById('editDescription').value = desc;
+            document.getElementById('editHours').value = hours;
+            openReportModal('editReportModal');
+        }
+
+        function viewDetails(desc) {
+            Swal.fire({
+                title: 'Activity Payload',
+                text: desc,
+                background: 'var(--bg-surface)',
+                color: 'var(--text-primary)',
+                confirmButtonColor: 'var(--brand-green)',
+                padding: '3rem',
+                customClass: {
+                    title: 'fw-800'
+                }
+            });
+        }
+
+        window.onclick = function(event) {
+            if (event.target.className === 'report-modal') {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
