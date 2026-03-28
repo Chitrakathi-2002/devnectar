@@ -15,6 +15,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     long countByDateAndStatus(LocalDate date, Attendance.AttendanceStatus status);
     
     List<Attendance> findByUserOrderByDateDescCheckInTimeDesc(User user);
+    List<Attendance> findByUserOrderByDateDesc(User user);
 
     @Query("SELECT a FROM Attendance a JOIN a.user u WHERE u.manager.id = :managerId AND a.date = :date")
     List<Attendance> findByManagerIdAndDate(@Param("managerId") Long managerId, @Param("date") LocalDate date);
