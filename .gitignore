@@ -1,0 +1,35 @@
+# Java/Maven/Spring Standard Ignore
+target/
+bin/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+*.original
+
+# Keep Maven Wrapper (Best Practice)
+!mvnw
+!mvnw.cmd
+!.mvn/
+
+# IDE Specific
+.idea/
+.settings/
+.project
+.classpath
+*.iml
+.DS_Store
+*.swp
+*.bak
+*.tmp
+*.old
+
+# Credentials & Runtime
+application-local.properties
+.env
+Dockerfile.dev
+
+# MacOS & Windows Junk
+Thumbs.db
+desktop.ini

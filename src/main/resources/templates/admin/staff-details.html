@@ -1,9 +1,21 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script>
+    (function() {
+        const theme = localStorage.getItem('devnectar_theme') || 'light';
+        const doc = document.documentElement;
+        if (theme === 'dark') doc.classList.add('dark-theme');
+        else doc.classList.add('light-theme');
+        doc.classList.add('no-transitions');
+        window.addEventListener('load', () => {
+            setTimeout(() => { doc.classList.remove('no-transitions'); }, 100);
+        });
+    })();
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Staff | CloudNex Admin</title>
+    <title>Manage Staff | devNectar Admin</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -51,7 +63,7 @@
             transition: all 0.2s;
         }
 
-        .back-link:hover { color: white; transform: translateX(-5px); }
+        .back-link:hover { color: var(--brand-green); transform: translateX(-5px); }
 
         .avatar-xl {
             width: 140px;
@@ -68,7 +80,7 @@
             box-shadow: 0 20px 40px var(--brand-glow);
         }
 
-        .sidebar-name { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; color: white; }
+        .sidebar-name { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text-primary); }
         .sidebar-email { color: var(--text-secondary); margin-bottom: 2rem; font-size: 1rem; }
 
         .status-toggle-card {
@@ -121,7 +133,7 @@
         }
 
         .form-section-head i { color: var(--brand-green); font-size: 1.25rem; }
-        .form-section-head h4 { margin: 0; font-weight: 800; font-size: 1rem; color: white; text-transform: uppercase; letter-spacing: 0.05em; }
+        .form-section-head h4 { margin: 0; font-weight: 800; font-size: 1rem; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; }
 
         .deactivated-info {
             background: rgba(239, 68, 68, 0.05);
@@ -183,7 +195,7 @@
                         
                         <div style="background: rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:16px; padding:1.25rem; text-align:left;">
                             <small style="color:var(--text-secondary); display:block; margin-bottom:0.5rem; font-weight:700;">REGISTRATION NODE</small>
-                            <div style="color:white; font-weight:700;" th:text="${#temporals.format(user.registrationDate, 'dd MMM yyyy')}">Date</div>
+                            <div style="color:var(--text-primary); font-weight:700;" th:text="${#temporals.format(user.registrationDate, 'dd MMM yyyy')}">Date</div>
                         </div>
                     </div>
                 </div>
@@ -199,7 +211,7 @@
                         <div class="status-toggle-card">
                             <div>
                                 <h5 style="margin: 0; font-weight: 700;">System Login Permission</h5>
-                                <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.85rem;">Revoke or grant access to the CloudNex portal.</p>
+                                <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.85rem;">Revoke or grant access to the devNectar portal.</p>
                                 <div th:if="${!user.isEnabled && user.deactivatedAt != null}" class="deactivated-info">
                                     <i class="fas fa-clock"></i> Revoked on: <span th:text="${#temporals.format(user.deactivatedAt, 'dd MMM yyyy HH:mm')}">Date</span>
                                 </div>
@@ -264,8 +276,8 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h5 style="margin: 0; font-weight: 700; color: white;">Purge Staff Record</h5>
-                                <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.85rem;">Permanently remove this user and all associated history logs from CloudNex.</p>
+                                <h5 style="margin: 0; font-weight: 700; color: var(--text-primary);">Purge Staff Record</h5>
+                                <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.85rem;">Permanently remove this user and all associated history logs from devNectar.</p>
                             </div>
                             <button type="button" class="btn btn-danger btn-action" style="background: #ef4444; border: none;" onclick="confirmDelete()">
                                 <i class="fas fa-trash-alt"></i> DELETE RECORD
@@ -286,7 +298,7 @@
             <div style="width: 80px; height: 80px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1.5rem;">
                 <i class="fas fa-exclamation-triangle"></i>
             </div>
-            <h2 style="font-weight: 800; color: white; margin-bottom: 1rem;">Delete Staff Record?</h2>
+            <h2 style="font-weight: 800; color: var(--text-primary); margin-bottom: 1rem;">Delete Staff Record?</h2>
             <p style="color: var(--text-secondary); margin-bottom: 2.5rem;">This action is permanent and will remove all associated logs for this user from the master directory.</p>
             
             <div class="d-flex gap-3">
@@ -302,5 +314,6 @@
         function confirmDelete() { document.getElementById('deleteModal').style.display = 'flex'; }
         function closeDeleteModal() { document.getElementById('deleteModal').style.display = 'none'; }
     </script>
+    
 </body>
 </html>

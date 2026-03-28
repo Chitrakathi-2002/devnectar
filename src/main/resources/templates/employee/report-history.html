@@ -1,8 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script>
+    (function() {
+        const theme = localStorage.getItem('devnectar_theme') || 'light';
+        const doc = document.documentElement;
+        if (theme === 'dark') doc.classList.add('dark-theme');
+        else doc.classList.add('light-theme');
+        doc.classList.add('no-transitions');
+        window.addEventListener('load', () => {
+            setTimeout(() => { doc.classList.remove('no-transitions'); }, 100);
+        });
+    })();
+</script>
     <meta charset="UTF-8">
-    <title>Report History | CloudNex</title>
+    <title>Report History | devNectar</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -165,5 +177,6 @@
             `;
         }
     </script>
+    
 </body>
 </html>

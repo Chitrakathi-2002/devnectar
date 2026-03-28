@@ -1,8 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script>
+    (function() {
+        const theme = localStorage.getItem('devnectar_theme') || 'light';
+        const doc = document.documentElement;
+        if (theme === 'dark') doc.classList.add('dark-theme');
+        else doc.classList.add('light-theme');
+        doc.classList.add('no-transitions');
+        window.addEventListener('load', () => {
+            setTimeout(() => { doc.classList.remove('no-transitions'); }, 100);
+        });
+    })();
+</script>
     <meta charset="UTF-8">
-    <title>Attendance | CloudNex</title>
+    <title>Attendance | devNectar</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -36,7 +48,7 @@
             font-size: 3.5rem;
             font-weight: 800;
             letter-spacing: -0.05em;
-            color: white;
+            color: var(--text-primary);
             margin-bottom: 0.5rem;
             text-shadow: 0 0 30px var(--brand-glow);
         }
@@ -116,7 +128,7 @@
                     </div>
 
                     <!-- Already Checked In -->
-                    <div th:if="${attendanceState.status != null && attendanceState.status.name() != 'PENDING_APPROVAL' && !attendanceState.hasCheckedOut}" class="badge badge-success" style="padding: 1rem 2rem; border-radius: 12px;">
+                    <div th:if="${attendanceState.status != null && attendanceState.status.name() != 'PENDING_APPROVAL' && !attendanceState.hasCheckedOut}" class="badge badge-success" style="padding: 1rem 2rem; border-radius: 12px; color: white !important;">
                         <i class="fas fa-check-circle me-2"></i> SESSION ACTIVE
                     </div>
 
@@ -134,7 +146,7 @@
                     </div>
 
                     <!-- Session Complete -->
-                    <div th:if="${attendanceState.hasCheckedOut}" class="badge badge-primary" style="padding: 1rem 2rem; border-radius: 12px;">
+                    <div th:if="${attendanceState.hasCheckedOut}" class="badge badge-primary" style="padding: 1rem 2rem; border-radius: 12px; color: white !important;">
                         <i class="fas fa-flag-checkered me-2"></i> SESSION COMPLETE
                     </div>
                 </div>
@@ -143,7 +155,183 @@
             <div class="card">
                 <div class="d-flex justify-content-between align-items-center mb-5">
                     <h2 style="font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em;">Historical Session Logs</h2>
-                    <div class="badge badge-primary">CURRENT CYCLE</div>
+                    <div class="badge badge-primary" style="color: white !important;">CURRENT CYCLE</div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Session Date</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                                <th class="text-center">Verification</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="record : ${history}">
+                                <td th:text="${record.date}" style="font-weight: 700;">Date</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent);" th:text="${record.checkInTime}">09:00</td>
+                                <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent);" th:text="${record.checkOutTime}">18:00</td>
+                                <td class="text-center">
+                                    <span th:class="${record.status.name() == 'PRESENT' ? 'badge badge-success' : 
+                                                     record.status.name() == 'HALF_DAY' ? 'badge badge-warning' : 
+                                                     record.status.name() == 'PENDING_APPROVAL' ? 'badge' : 'badge badge-danger'}"
+                                          th:style="${record.status.name() == 'PENDING_APPROVAL' ? 'background: rgba(255, 193, 7, 0.2); color: #ffc107;' : ''}"
+                                          th:text="${record.status}">PRESENT</span>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(history)}">
+                                <td colspan="4" class="text-center py-5" style="color: var(--text-secondary);">
+                                    <i class="fas fa-database mb-4" style="font-size: 2.5rem; opacity: 0.1; display: block;"></i>
+                                    No session logs detected for the current temporal cycle.
+                                </td>
+                            </tr>
+                        </tbody>
+</script>
+    <meta charset="UTF-8">
+    <title>Attendance | devNectar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .punch-console {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 32px;
+            padding: 4rem 2rem;
+            text-align: center;
+            margin: 0 auto 3rem auto;
+            max-width: 700px;
+            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .punch-console::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, var(--brand-glow) 0%, transparent 70%);
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .clock-display {
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 30px var(--brand-glow);
+        }
+
+        .punch-btn {
+            padding: 1.25rem 3.5rem;
+            font-weight: 800;
+            border-radius: 18px;
+            font-size: 1.1rem;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-punch-in {
+            background: var(--brand-green);
+            color: white;
+            box-shadow: 0 15px 30px -10px var(--brand-glow);
+        }
+
+        .btn-punch-in:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 25px 50px -12px var(--brand-glow);
+        }
+
+        .btn-punch-out {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .btn-punch-out:hover {
+            background: #ef4444;
+            color: white;
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 25px 50px -12px rgba(239, 68, 68, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar :: sidebar('attendance')}"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/header :: header}" 
+             th:with="pageTitle='Time & Attendance', pageSubtitle='Synchronize your work sessions with the core node'"></div>
+
+        <div class="dashboard-content">
+            <div class="punch-console">
+                <div class="mb-5">
+                    <div class="clock-display" id="live-clock">00:00:00</div>
+                    <p style="color: var(--text-secondary); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.8rem;">
+                        Terminal Session: <span th:text="${T(java.time.LocalDate).now()}">Today</span>
+                    </p>
+                </div>
+
+                <div class="d-flex justify-content-center gap-4 align-items-center">
+                    <!-- Standard Check In (Within 11:00 - 11:30 Window - though auto is better, manual fallback is fine) -->
+                    <form th:if="${!attendanceState.hasCheckedIn && !attendanceState.isLateArrival}" th:action="@{/employee/attendance/punch-in}" method="post">
+                        <button type="submit" class="punch-btn btn-punch-in">
+                            <i class="fas fa-fingerprint"></i> Check In
+                        </button>
+                    </form>
+
+                    <!-- Late Arrival Request (After 11:30 AM) -->
+                    <form th:if="${!attendanceState.hasCheckedIn && attendanceState.isLateArrival}" th:action="@{/employee/attendance/request-late}" method="post">
+                        <button type="submit" class="punch-btn" style="background: var(--brand-glow); color: white;">
+                            <i class="fas fa-user-clock"></i> Request Manager Approval
+                        </button>
+                    </form>
+
+                    <!-- Awaiting Approval State -->
+                    <div th:if="${attendanceState.status != null && attendanceState.status.name() == 'PENDING_APPROVAL'}" class="badge" style="background: rgba(255, 193, 7, 0.2); color: #ffc107; padding: 1rem 2rem; border-radius: 12px; font-weight: 700;">
+                        <i class="fas fa-hourglass-half me-2"></i> PENDING MANAGER APPROVAL
+                    </div>
+
+                    <!-- Already Checked In -->
+                    <div th:if="${attendanceState.status != null && attendanceState.status.name() != 'PENDING_APPROVAL' && !attendanceState.hasCheckedOut}" class="badge badge-success" style="padding: 1rem 2rem; border-radius: 12px; color: white !important;">
+                        <i class="fas fa-check-circle me-2"></i> SESSION ACTIVE
+                    </div>
+
+                    <!-- Check Out (Before 6:30 PM) -->
+                    <form th:if="${attendanceState.hasCheckedIn && !attendanceState.hasCheckedOut && !attendanceState.isAfterCheckoutCutoff && attendanceState.status.name() != 'PENDING_APPROVAL'}" th:action="@{/employee/attendance/punch-out}" method="post">
+                        <button type="submit" class="punch-btn btn-punch-out">
+                            <i class="fas fa-power-off"></i> Check Out
+                        </button>
+                    </form>
+
+                    <!-- Restricted Check Out (After 6:30 PM) -->
+                    <div th:if="${attendanceState.hasCheckedIn && !attendanceState.hasCheckedOut && attendanceState.isAfterCheckoutCutoff}" class="text-danger" style="font-weight: 700; max-width: 300px;">
+                        <i class="fas fa-lock me-2"></i> SESSION LOCKED (After 6:30 PM)
+                        <p style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.7;">Departure beyond protocol window requires manual audit.</p>
+                    </div>
+
+                    <!-- Session Complete -->
+                    <div th:if="${attendanceState.hasCheckedOut}" class="badge badge-primary" style="padding: 1rem 2rem; border-radius: 12px; color: white !important;">
+                        <i class="fas fa-flag-checkered me-2"></i> SESSION COMPLETE
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <h2 style="font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em;">Historical Session Logs</h2>
+                    <div class="badge badge-primary" style="color: white !important;">CURRENT CYCLE</div>
                 </div>
 
                 <div class="table-responsive">
@@ -182,14 +370,56 @@
         </div>
     </div>
 
-    <script>
-        function updateClock() {
-            const now = new Date();
-            const time = now.toLocaleTimeString('en-US', { hour12: false });
-            document.getElementById('live-clock').innerText = time;
+    <script th:inline="javascript">
+        const checkInTime = /*[[${attendanceState.checkInTime}]]*/ null;
+        const checkOutTime = /*[[${attendanceState.checkOutTime}]]*/ null;
+        const hasCheckedIn = /*[[${attendanceState.hasCheckedIn}]]*/ false;
+        const hasCheckedOut = /*[[${attendanceState.hasCheckedOut}]]*/ false;
+
+        function parseLocalTime(timeStr) {
+            if (!timeStr) return null;
+            const parts = timeStr.split(':');
+            const h = parseInt(parts[0], 10);
+            const m = parseInt(parts[1], 10);
+            const s = parts[2] ? parseFloat(parts[2]) : 0;
+            const d = new Date();
+            d.setHours(h, m, Math.floor(s), 0);
+            return d;
         }
-        setInterval(updateClock, 1000);
+
+        function formatDuration(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            return [h, m, s].map(v => v < 10 ? '0' + v : v).join(':');
+        }
+
+        function updateClock() {
+            if (!hasCheckedIn) {
+                document.getElementById('live-clock').innerText = "00:00:00";
+                return;
+            }
+
+            const startTime = parseLocalTime(checkInTime);
+            let endTime;
+            
+            if (hasCheckedOut && checkOutTime) {
+                endTime = parseLocalTime(checkOutTime);
+            } else {
+                endTime = new Date();
+            }
+
+            let diff = Math.floor((endTime - startTime) / 1000);
+            if (diff < 0) diff = 0; // Prevent negative time on clock drifts
+            
+            document.getElementById('live-clock').innerText = formatDuration(diff);
+        }
+
+        if (!hasCheckedOut) {
+            setInterval(updateClock, 1000);
+        }
         updateClock();
     </script>
+    
 </body>
 </html>

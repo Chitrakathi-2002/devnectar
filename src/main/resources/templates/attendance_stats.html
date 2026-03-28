@@ -1,57 +1,94 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
+    <script>
+    (function() {
+        const theme = localStorage.getItem('devnectar_theme') || 'light';
+        const doc = document.documentElement;
+        if (theme === 'dark') doc.classList.add('dark-theme');
+        else doc.classList.add('light-theme');
+        doc.classList.add('no-transitions');
+        window.addEventListener('load', () => {
+            setTimeout(() => { doc.classList.remove('no-transitions'); }, 100);
+        });
+    })();
+</script>
     <meta charset="UTF-8">
-    <title>Attendance Analytics | CloudNex</title>
+    <title>Attendance Analytics | devNectar</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .filter-nexus-analytics {
-            background: var(--bg-surface);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
             border: 1px solid var(--border-color);
-            border-radius: 32px;
-            padding: 3rem;
-            margin-bottom: 3rem;
-            box-shadow: var(--shadow-lg);
+            border-radius: 18px;
+            padding: 1.25rem 1.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.25);
         }
 
-        /* Choices.js Customization */
-        .choices__inner {
-            background: rgba(0, 0, 0, 0.05) !important;
-            border: 1px solid var(--border-color) !important;
-            border-radius: 14px !important;
-            color: var(--text-primary) !important;
-            padding: 0.8rem 1.25rem !important;
-            min-height: 56px !important;
-            display: flex;
-            align-items: center;
-            font-weight: 600;
-        }
-
-        .matrix-table {
-            border-collapse: separate;
-            border-spacing: 0;
+        .matrix-select-node {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0 1rem;
             width: 100%;
+            height: 42px;
+            color: var(--text-primary);
+            font-weight: 600;
+            outline: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            font-size: 0.85rem;
         }
+
+        .matrix-select-node:focus {
+            border-color: var(--brand-green);
+            background-color: rgba(16, 185, 129, 0.05);
+        }
+
+        .btn-matrix-update {
+            height: 42px;
+            padding: 0 1.5rem;
+            background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green-hover) 100%);
+            color: white;
+            border-radius: 10px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+        }
+
+        .matrix-table { border-collapse: separate; border-spacing: 0; width: 100%; }
 
         .matrix-table th {
-            padding: 1.5rem 0.75rem;
-            background: rgba(0,0,0,0.05);
+            padding: 0.85rem 0.5rem;
+            background: rgba(0,0,0,0.02);
             border-bottom: 1px solid var(--border-color);
             color: var(--text-secondary);
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.12em;
-            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            font-size: 0.55rem;
         }
 
         .matrix-table td {
-            padding: 1.25rem 0.75rem;
+            padding: 0.65rem 0.5rem;
             border-bottom: 1px solid var(--border-color);
         }
 
@@ -60,89 +97,95 @@
             left: 0;
             z-index: 100 !important;
             background: var(--bg-surface) !important;
-            border-right: 2px solid var(--border-color) !important;
-            box-shadow: 10px 0 30px -15px rgba(0,0,0,0.5);
+            border-right: 1px solid var(--border-color) !important;
+            box-shadow: 4px 0 12px -6px rgba(0,0,0,0.1);
         }
 
         .matrix-status-box {
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
+            width: 13px;
+            height: 13px;
+            border-radius: 3px;
             display: inline-block;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
 
-        .status-PRESENT { background: var(--brand-green); box-shadow: 0 0 10px var(--brand-glow); }
-        .status-ABSENT { background: var(--danger); box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+        .status-PRESENT { background: var(--brand-green); box-shadow: 0 0 6px var(--brand-glow); }
+        .status-ABSENT { background: var(--danger); box-shadow: 0 0 6px rgba(239, 68, 68, 0.15); }
 
         .legend-node {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
-            padding: 1rem 2.5rem;
-            background: rgba(255,255,255,0.03);
+            gap: 1rem;
+            padding: 0.65rem 1.25rem;
+            background: rgba(255,255,255,0.01);
             border-bottom: 1px solid var(--border-color);
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            font-size: 0.75rem;
+            gap: 0.35rem;
+            font-size: 0.5rem;
             font-weight: 800;
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
-        .identity-node-mini {
+        .btn-icon-node {
+            width: 34px;
+            height: 34px;
             display: flex;
             align-items: center;
-            gap: 1.25rem;
-        }
-
-        .node-avatar-mini {
-            width: 42px; height: 42px; border-radius: 14px;
-            background: linear-gradient(135deg, var(--brand-green) 0%, #059669 100%);
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 800; color: white;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
-        }
-
-        /* Visible Export Buttons */
-        .btn-export {
-            background: rgba(255, 255, 255, 0.1);
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border-color);
-            color: var(--text-primary);
+            color: var(--text-secondary);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            text-decoration: none;
         }
-        .btn-export:hover { 
+
+        .btn-icon-node:hover {
+            transform: translateY(-2px);
             background: var(--brand-green);
             color: white;
             border-color: var(--brand-green);
-            transform: translateY(-2px);
         }
 
-        .btn-export-pdf:hover {
-            background: var(--danger);
-            border-color: var(--danger);
-        }
-
-        .summary-col {
-            min-width: 80px;
+        .btn-matrix-logs {
+            background: var(--brand-green);
+            color: white;
+            padding: 0 1rem;
+            height: 34px;
+            border-radius: 8px;
+            font-size: 0.65rem;
             font-weight: 800;
-            text-align: center;
-            border-left: 1px solid var(--border-color);
-        }
-
-        .label-micro {
-            font-size: 0.7rem;
-            font-weight: 800;
-            color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 0.15em;
-            margin-bottom: 1rem;
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .summary-col { min-width: 55px; font-weight: 800; text-align: center; border-left: 1px solid var(--border-color); }
+
+        .micro-live {
+            font-size: 0.4rem !important;
+            padding: 0.1rem 0.25rem !important;
+            border-radius: 3px;
+            width: fit-content;
+        }
+
+        @media (max-width: 768px) {
+            .matrix-table th.sticky-col, .matrix-table td.sticky-col { 
+                min-width: 125px !important; 
+                padding-left: 0.75rem !important;
+            }
         }
     </style>
 </head>
@@ -151,62 +194,62 @@
 
     <div class="main-content">
         <div th:replace="~{fragments/header :: header}" 
-             th:with="pageTitle=${isAdmin ? 'Workforce Intelligence Matrix' : 'Contribution Analytics'}, 
-                      pageSubtitle='Advanced behavioral assessment and monthly temporal analysis'"></div>
+             th:with="pageTitle=${isAdmin ? 'Matrix' : 'Analytics'}, 
+                       pageSubtitle='Administrative behavioral portal'"></div>
 
         <div class="dashboard-content">
             <!-- Analytics Filter Node (Admin Only) -->
             <div th:if="${isAdmin}" class="filter-nexus-analytics">
-                <form id="matrixFilterForm" method="get" th:action="@{/admin/attendance/stats}" style="display: flex; gap: 2.5rem; align-items: flex-end; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 280px;">
-                        <label class="label-micro">Temporal Cycle (Month)</label>
-                        <select name="month" id="monthSelect">
+                <form id="matrixFilterForm" method="get" th:action="@{/admin/attendance/stats}" style="display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 140px;">
+                        <label class="label-micro" style="margin-left: 0.25rem; opacity: 0.6; font-size: 0.55rem;">Cycle Selection</label>
+                        <select name="month" id="monthSelect" class="matrix-select-node">
                             <option th:each="m : ${#numbers.sequence(1, 12)}" 
                                     th:value="${m}" 
                                     th:text="${T(java.time.Month).of(m).name()}"
                                     th:selected="${m == selectedMonth}"></option>
                         </select>
                     </div>
-                    <div style="flex: 1; min-width: 200px;">
-                        <label class="label-micro">Temporal Phase (Year)</label>
-                        <select name="year" id="yearSelect">
+                    <div style="flex: 1; min-width: 90px;">
+                        <label class="label-micro" style="margin-left: 0.25rem; opacity: 0.6; font-size: 0.55rem;">Phase</label>
+                        <select name="year" id="yearSelect" class="matrix-select-node">
                             <option th:each="y : ${#numbers.sequence(2024, 2030)}" 
                                     th:value="${y}" 
                                     th:text="${y}"
                                     th:selected="${y == selectedYear}"></option>
                         </select>
                     </div>
-                    <div style="flex: 0 0 280px;">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-sync-alt"></i> UPDATE MATRIX DATA
+                    <div>
+                        <button type="submit" class="btn-matrix-update">
+                            <i class="fas fa-sync-alt"></i> <span class="d-none d-sm-inline ms-2">SYNC</span>
                         </button>
                     </div>
                 </form>
             </div>
 
             <!-- Matrix Visual Layer -->
-            <div class="card p-0" style="padding: 0 !important; overflow: visible;">
+            <div class="card p-0" style="padding: 0 !important; overflow: visible; border-radius: 14px;">
                 <!-- Header Panel -->
-                <div class="d-flex justify-content-between align-items-center p-5 flex-wrap gap-4" style="background: rgba(0,0,0,0.1); border-bottom: 1px solid var(--border-color);">
-                    <div class="d-flex align-items-center gap-4">
-                        <div style="width: 56px; height: 56px; background: rgba(16, 185, 129, 0.1); color: var(--brand-green); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <div class="d-flex justify-content-between align-items-center p-2 px-3 flex-wrap gap-2" style="background: rgba(0,0,0,0.03); border-bottom: 1px solid var(--border-color);">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width: 28px; height: 28px; background: rgba(16, 185, 129, 0.08); color: var(--brand-green); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">
                             <i class="fas fa-microchip"></i>
                         </div>
                         <div>
-                            <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; margin: 0;" th:text="${isAdmin ? 'Workforce Behavioral Matrix' : 'Attendance Analytics'}">Matrix</h2>
-                            <p style="color: var(--brand-green); font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.25rem;" th:text="${monthName + ' ' + selectedYear}">Cycle Identification</p>
+                            <h2 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 0; line-height: 1;" th:text="${isAdmin ? 'Behavioral Matrix' : 'Analytics'}">Matrix</h2>
+                            <p style="color: var(--brand-green); font-size: 0.55rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px;" th:text="${monthName + ' ' + selectedYear}">Cycle Identification</p>
                         </div>
                     </div>
                     
-                    <div th:if="${isAdmin}" class="d-flex gap-3">
-                        <a th:href="@{/admin/attendance/export/excel(month=${selectedMonth}, year=${selectedYear})}" class="btn btn-export">
-                            <i class="fas fa-file-excel"></i> EXCEL DISPATCH
+                    <div th:if="${isAdmin}" class="d-flex gap-2">
+                        <a th:href="@{/admin/attendance/export/excel(month=${selectedMonth}, year=${selectedYear})}" class="btn-icon-node" title="Export Excel">
+                            <i class="fas fa-file-excel"></i>
                         </a>
-                        <a th:href="@{/admin/attendance/export/pdf(month=${selectedMonth}, year=${selectedYear})}" class="btn btn-export btn-export-pdf">
-                            <i class="fas fa-file-pdf"></i> PDF EXPORT
+                        <a th:href="@{/admin/attendance/export/pdf(month=${selectedMonth}, year=${selectedYear})}" class="btn-icon-node" title="Export PDF">
+                            <i class="fas fa-file-pdf"></i>
                         </a>
-                        <a th:href="@{/admin/attendance/all(month=${selectedMonth}, year=${selectedYear})}" class="btn btn-primary px-5">
-                            DETAILED SYSTEM LOGS
+                        <a th:href="@{/admin/attendance/all(month=${selectedMonth}, year=${selectedYear})}" class="btn-matrix-logs">
+                            <i class="fas fa-scroll"></i> <span class="d-none d-md-inline">LOGS</span>
                         </a>
                     </div>
                 </div>
@@ -215,15 +258,15 @@
                 <div class="legend-node">
                     <div class="legend-item">
                         <div class="matrix-status-box status-PRESENT"></div>
-                        <span>Present Cycle</span>
+                        <span>Present</span>
                     </div>
                     <div class="legend-item">
                         <div class="matrix-status-box status-ABSENT"></div>
-                        <span>Absent / Gap Detected</span>
+                        <span>Absent</span>
                     </div>
                     <div class="legend-item">
-                        <span style="color: var(--text-secondary); opacity: 0.3; font-weight: 800; font-size: 0.9rem;">H</span>
-                        <span>Holiday / Weekend</span>
+                        <span style="color: var(--text-secondary); opacity: 0.3; font-weight: 800; font-size: 0.55rem;">H</span>
+                        <span>Holiday</span>
                     </div>
                 </div>
                 
@@ -231,29 +274,28 @@
                     <table class="matrix-table">
                         <thead>
                             <tr>
-                                <th rowspan="2" class="sticky-col" style="min-width: 280px; text-align: left; padding-left: 2.5rem;">Staff Node Identification</th>
-                                <th th:colspan="${daysInMonth}" class="text-center" style="background: rgba(0,0,0,0.15); border-left: 2px solid var(--border-color);">Daily Synchronization Stream</th>
-                                <th colspan="3" class="text-center" style="background: rgba(16, 185, 129, 0.05); border-left: 2px solid var(--border-color);">Monthly Summary</th>
+                                <th rowspan="2" class="sticky-col" style="min-width: 125px; text-align: left; padding-left: 1.25rem;">Staff Node</th>
+                                <th th:colspan="${daysInMonth}" class="text-center" style="background: rgba(0,0,0,0.03); border-left: 1px solid var(--border-color);">Daily Synchronization</th>
+                                <th colspan="3" class="text-center" style="background: rgba(16, 185, 129, 0.02); border-left: 1px solid var(--border-color);">Summary</th>
                             </tr>
                             <tr>
                                 <th th:each="day : ${#numbers.sequence(1, daysInMonth)}" 
                                     th:text="${day}" 
                                     class="text-center" 
-                                    style="min-width: 36px;"
-                                    th:styleappend="${day == todayDay} ? 'background: var(--brand-green); color: white; border: none; box-shadow: 0 0 20px var(--brand-glow);' : ''">1</th>
-                                <th class="summary-col" style="color: var(--brand-green); min-width: 100px;">PRESENT</th>
-                                <th class="summary-col" style="color: var(--danger); min-width: 100px;">ABSENT</th>
-                                <th class="summary-col" style="min-width: 120px;">EFFICIENCY</th>
+                                    style="min-width: 25px;"
+                                    th:styleappend="${day == todayDay} ? 'background: var(--brand-green); color: white; border: none; box-shadow: 0 0 8px var(--brand-glow);' : ''">1</th>
+                                <th class="summary-col" style="color: var(--brand-green);">P</th>
+                                <th class="summary-col" style="color: var(--danger);">A</th>
+                                <th class="summary-col">%</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="row : ${matrixRows}">
-                                <td class="sticky-col" style="padding-left: 2.5rem;">
+                                <td class="sticky-col" style="padding-left: 1.25rem;">
                                     <div class="identity-node-mini">
-                                        <div class="node-avatar-mini" th:text="${#strings.substring(row.fullName,0,1)}">U</div>
-                                        <div class="d-flex flex-column">
-                                            <span style="font-weight: 800; color: var(--text-primary); font-size: 1rem;" th:text="${row.fullName}">Name</span>
-                                            <span th:if="${row.presentToday}" class="badge badge-success" style="font-size: 0.6rem; margin-top: 4px;">LIVE NODE</span>
+                                        <div class="d-flex flex-column" style="max-width: 110px;">
+                                            <span style="font-weight: 500; color: var(--text-primary); font-size: 0.75rem; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" th:text="${row.fullName}" th:title="${row.fullName}">Name</span>
+                                            <span th:if="${row.presentToday}" class="badge badge-success micro-live" style="margin-top: 1px;">LIVE</span>
                                         </div>
                                     </div>
                                 </td>
@@ -261,18 +303,18 @@
                                     class="text-center" 
                                     th:with="status=${row.dailyStatus.get(day)}">
                                     <span th:if="${day >= row.registrationDay}">
-                                        <div th:if="${status == 'PRESENT'}" class="matrix-status-box status-PRESENT" data-bs-toggle="tooltip" title="Cycle Locked"></div>
-                                        <div th:if="${status == 'ABSENT'}" class="matrix-status-box status-ABSENT" data-bs-toggle="tooltip" title="Gap Detected"></div>
-                                        <span th:if="${status == 'SUNDAY'}" style="color: var(--text-secondary); opacity: 0.3; font-weight: 800; font-size: 0.75rem;">H</span>
-                                        <span th:if="${status == 'PENDING' || status == null}" style="color: var(--border-color); opacity: 0.2;">.</span>
+                                        <div th:if="${status == 'PRESENT'}" class="matrix-status-box status-PRESENT"></div>
+                                        <div th:if="${status == 'ABSENT'}" class="matrix-status-box status-ABSENT"></div>
+                                        <span th:if="${status == 'SUNDAY'}" style="color: var(--text-secondary); opacity: 0.3; font-weight: 800; font-size: 0.55rem;">H</span>
+                                        <span th:if="${status == 'PENDING' || status == null}" style="color: var(--border-color); opacity: 0.15;">.</span>
                                     </span>
                                 </td>
-                                <td th:text="${row.presentCount}" class="summary-col" style="color: var(--brand-green); font-size: 1rem;">0</td>
-                                <td th:text="${row.absentCount}" class="summary-col" style="color: var(--danger); font-size: 1rem;">0</td>
+                                <td th:text="${row.presentCount}" class="summary-col" style="color: var(--brand-green); font-size: 0.75rem;">0</td>
+                                <td th:text="${row.absentCount}" class="summary-col" style="color: var(--danger); font-size: 0.75rem;">0</td>
                                 <td class="summary-col">
                                     <span th:text="${#numbers.formatDecimal(row.attendanceRate, 1, 0) + '%'}"
                                           class="badge"
-                                          style="font-size: 0.75rem; min-width: 60px; padding: 0.5rem;"
+                                          style="font-size: 0.6rem; min-width: 32px; padding: 0.25rem;"
                                           th:classappend="${row.attendanceRate >= 80 ? 'badge-success' : (row.attendanceRate >= 50 ? 'badge-warning' : 'badge-danger')}">0%</span>
                                 </td>
                             </tr>
@@ -287,21 +329,8 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
-            const choiceOptions = {
-                searchEnabled: false,
-                itemSelectText: '',
-                classNames: {
-                    containerInner: 'choices__inner',
-                    listDropdown: 'choices__list--dropdown',
-                }
-            };
-
-            if (document.getElementById('monthSelect')) new Choices('#monthSelect', choiceOptions);
-            if (document.getElementById('yearSelect')) new Choices('#yearSelect', choiceOptions);
-
             const isAdmin = /*[[${isAdmin}]]*/ false;
             if (!isAdmin) {
                 const ctx = document.getElementById('attendanceChart')?.getContext('2d');

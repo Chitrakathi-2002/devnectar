@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
+    <script>
+    (function() {
+        const theme = localStorage.getItem('devnectar_theme') || 'light';
+        const doc = document.documentElement;
+        if (theme === 'dark') doc.classList.add('dark-theme');
+        else doc.classList.add('light-theme');
+        doc.classList.add('no-transitions');
+        window.addEventListener('load', () => {
+            setTimeout(() => { doc.classList.remove('no-transitions'); }, 100);
+        });
+    })();
+</script>
 </head>
 <body>
     <div th:fragment="sidebar(activePage)" class="sidebar">

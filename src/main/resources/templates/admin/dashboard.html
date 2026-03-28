@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script>
+    (function() {
+        const theme = localStorage.getItem('devnectar_theme') || 'light';
+        const doc = document.documentElement;
+        if (theme === 'dark') doc.classList.add('dark-theme');
+        else doc.classList.add('light-theme');
+        doc.classList.add('no-transitions');
+        window.addEventListener('load', () => {
+            setTimeout(() => { doc.classList.remove('no-transitions'); }, 100);
+        });
+    })();
+</script>
     <meta charset="UTF-8">
     <title>Admin Dashboard | devNectar</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,7 +65,7 @@
 
         .stat-meta { flex-grow: 1; }
         .stat-label { font-size: 0.75rem; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
-        .stat-value { font-size: 1.75rem; font-weight: 800; color: white; letter-spacing: -0.02em; }
+        .stat-value { font-size: 1.75rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
         .stat-sub { font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem; font-weight: 500; }
 
         .action-required-badge {
@@ -93,7 +105,7 @@
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            color: white;
+            color: var(--text-primary);
             font-size: 1.1rem;
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
@@ -219,5 +231,6 @@
             </div>
         </div>
     </div>
+    
 </body>
 </html>

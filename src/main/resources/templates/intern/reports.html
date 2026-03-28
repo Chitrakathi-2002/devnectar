@@ -1,8 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script>
+    (function() {
+        const theme = localStorage.getItem('devnectar_theme') || 'light';
+        const doc = document.documentElement;
+        if (theme === 'dark') doc.classList.add('dark-theme');
+        else doc.classList.add('light-theme');
+        doc.classList.add('no-transitions');
+        window.addEventListener('load', () => {
+            setTimeout(() => { doc.classList.remove('no-transitions'); }, 100);
+        });
+    })();
+</script>
     <meta charset="UTF-8">
-    <title>Daily Reports | CloudNex</title>
+    <title>Daily Reports | devNectar</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -103,7 +115,7 @@
                             <tr th:each="report : ${reports}">
                                 <td style="font-weight: 700;" th:text="${report.submissionDate}">Date</td>
                                 <td>
-                                    <div th:text="${report.title}" style="font-weight: 800; font-size: 1rem; color: white;">Title</div>
+                                    <div th:text="${report.title}" style="font-weight: 800; font-size: 1rem; color: var(--text-primary);">Title</div>
                                     <div th:if="${report.managerFeedback}" class="feedback-bubble">
                                         <i class="fas fa-comment-dots text-warning"></i> 
                                         <div>
@@ -153,7 +165,7 @@
         <div class="modal-nexus">
             <div class="d-flex justify-content-between align-items-center mb-5">
                 <h3 style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em;">New Contribution</h3>
-                <button class="btn-close btn-close-white" onclick="closeReportModal('newReportModal')"></button>
+                <button class="btn-close" onclick="closeReportModal('newReportModal')"></button>
             </div>
             <form th:action="@{/intern/reports/submit}" method="post">
                 <div class="mb-5">
@@ -181,7 +193,7 @@
         <div class="modal-nexus">
             <div class="d-flex justify-content-between align-items-center mb-5">
                 <h3 style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em;">Revision Sync</h3>
-                <button class="btn-close btn-close-white" onclick="closeReportModal('editReportModal')"></button>
+                <button class="btn-close" onclick="closeReportModal('editReportModal')"></button>
             </div>
             <form id="editForm" method="post">
                 <div class="mb-5">
@@ -241,5 +253,6 @@
             }
         }
     </script>
+    
 </body>
 </html>

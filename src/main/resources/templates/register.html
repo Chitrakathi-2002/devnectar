@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script>
+    (function() {
+        const theme = localStorage.getItem('devnectar_theme') || 'light';
+        const doc = document.documentElement;
+        if (theme === 'dark') doc.classList.add('dark-theme');
+        else doc.classList.add('light-theme');
+        doc.classList.add('no-transitions');
+        window.addEventListener('load', () => {
+            setTimeout(() => { doc.classList.remove('no-transitions'); }, 100);
+        });
+    })();
+</script>
     <meta charset="UTF-8">
     <title>Register | devNectar</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,165 +25,212 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #0a0f18;
+            background: radial-gradient(circle at 0% 0%, var(--bg-body) 0%, #e2e8f0 100%);
+            color: var(--text-primary);
             margin: 0;
-            padding: 4rem 1.5rem;
+            padding: 2rem 1rem;
             box-sizing: border-box;
             position: relative;
             overflow-x: hidden;
+            transition: all 0.3s;
         }
 
         .register-container {
             width: 100%;
-            max-width: 900px;
+            max-width: 850px;
             position: relative;
             z-index: 10;
-            animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .auth-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 40px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 48px;
             padding: 4.5rem;
-            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 40px 100px -20px rgba(15, 23, 42, 0.1);
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
         .auth-header {
             text-align: center;
-            margin-bottom: 4rem;
+            margin-bottom: 4.5rem;
         }
 
-        .auth-header .brand {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            letter-spacing: -1.5px;
+        .auth-header .brand-logo { 
+            height: 60px;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.05));
         }
 
         .auth-header h2 {
-            font-size: 2.25rem;
+            font-size: 2.75rem;
             font-weight: 800;
-            color: white;
-            letter-spacing: -1px;
+            color: var(--text-primary);
+            letter-spacing: -2px;
             margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, #475569 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .auth-header p {
             color: var(--text-secondary);
-            font-size: 1.1rem;
+            font-size: 1.15rem;
+            font-weight: 500;
         }
 
-        .section-title {
-            font-size: 0.8rem;
+        .reg-step-box {
+            margin-bottom: 4rem;
+        }
+
+        .step-label {
+            font-size: 0.75rem;
             font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
             color: var(--brand-green);
-            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 1.5rem;
-            margin-top: 4rem;
+            gap: 1rem;
         }
 
-        .section-title::after {
+        .step-label::after {
             content: "";
-            flex: 1;
             height: 1px;
-            background: linear-gradient(90deg, rgba(16, 185, 129, 0.3), transparent);
+            flex-grow: 1;
+            background: linear-gradient(90deg, var(--brand-glow), transparent);
         }
 
         .role-selector {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 3rem;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 0.75rem;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
-        .role-option { flex: 1; position: relative; }
-        .role-option input { position: absolute; opacity: 0; cursor: pointer; width: 100%; height: 100%; z-index: 2; }
+        .role-option { position: relative; }
+        .role-option input { position: absolute; opacity: 0; width: 0; height: 0; }
 
         .role-label {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            padding: 1.75rem;
-            text-align: center;
-            border-radius: 14px;
+            justify-content: center;
+            gap: 1.25rem;
+            padding: 1.25rem 2rem;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1.5px solid transparent;
+            border-radius: 20px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             color: var(--text-secondary);
             font-weight: 700;
-            border: 1px solid transparent;
-            position: relative;
-            z-index: 1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         }
 
-        .role-label i { font-size: 1.75rem; margin-bottom: 0.75rem; opacity: 0.5; transition: all 0.3s; }
+        .role-label i { font-size: 1.4rem; transition: transform 0.3s; }
 
         .role-option input:checked + .role-label {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--brand-green);
-            border-color: rgba(16, 185, 129, 0.3);
-            box-shadow: 0 4px 20px var(--brand-glow);
+            background: white;
+            border-color: var(--brand-green);
+            color: var(--text-primary);
+            box-shadow: 0 20px 40px -10px var(--brand-glow);
         }
 
-        .role-option input:checked + .role-label i { opacity: 1; transform: translateY(-2px); }
+        .role-label:hover { transform: translateY(-5px); background: white; }
+        .role-option input:checked + .role-label i { transform: scale(1.1); color: var(--brand-green); }
 
-        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
 
-        .form-group { margin-bottom: 0.5rem; }
+        .form-group { margin-bottom: 1.75rem; position: relative; }
+
         .form-group label {
             display: block;
-            font-size: 0.75rem;
-            font-weight: 700;
+            font-size: 0.7rem;
+            font-weight: 800;
             color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.75rem;
-            margin-left: 0.25rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.85rem;
+            margin-left: 0.5rem;
         }
+
+        .input-box { position: relative; display: flex; align-items: center; }
+        .input-box i { position: absolute; left: 1.5rem; color: var(--text-muted); transition: color 0.3s; pointer-events: none; }
 
         .form-control {
             width: 100%;
-            background: rgba(0, 0, 0, 0.3) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            border-radius: 16px !important;
-            padding: 1rem 1.5rem !important;
-            color: white !important;
+            background: rgba(255, 255, 255, 0.4) !important;
+            border: 1px solid rgba(0,0,0,0.08) !important;
+            border-radius: 18px !important;
+            padding: 1rem 1.75rem 1rem 3.5rem !important;
+            color: var(--text-primary) !important;
             font-size: 1rem !important;
+            font-weight: 600 !important;
             transition: all 0.3s !important;
         }
 
         .form-control:focus {
+            background: white !important;
             border-color: var(--brand-green) !important;
-            background: rgba(0, 0, 0, 0.4) !important;
-            box-shadow: 0 0 0 4px var(--brand-glow) !important;
+            box-shadow: 0 10px 25px -5px var(--brand-glow) !important;
             outline: none;
         }
 
+        select.form-control {
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1.5rem center;
+            background-size: 1.2rem;
+            padding-right: 3.5rem !important;
+        }
+
+        select.form-control:focus {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        }
+
+        .form-control:focus + i { color: var(--brand-green); }
+
+        /* Multi-role dynamic content */
+        .role-section { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .file-upload-box {
+            background: rgba(255, 255, 255, 0.4);
+            border: 2px dashed rgba(0, 0, 0, 0.1);
+            border-radius: 18px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload-box:hover { border-color: var(--brand-green); background: rgba(16, 185, 129, 0.02); }
+        .file-upload-box i { font-size: 1.5rem; color: var(--brand-green); margin-bottom: 0.5rem; display: block; }
+        .file-upload-box span { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); }
+        .file-hint { font-size: 0.7rem; color: var(--text-secondary); display: block; margin-top: 0.25rem; }
+
         .btn-submit {
             width: 100%;
-            padding: 1.25rem;
+            padding: 1.35rem;
             background: linear-gradient(135deg, var(--brand-green) 0%, #059669 100%);
             color: white;
             border: none;
-            border-radius: 20px;
+            border-radius: 24px;
             font-size: 1.15rem;
             font-weight: 800;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             margin-top: 5rem;
             display: flex;
             align-items: center;
@@ -180,18 +239,35 @@
             box-shadow: 0 20px 40px var(--brand-glow);
         }
 
-        .btn-submit:hover { transform: translateY(-3px); box-shadow: 0 30px 60px var(--brand-glow); filter: brightness(1.1); }
+        .btn-submit:hover { transform: translateY(-5px); box-shadow: 0 30px 60px var(--brand-glow); filter: brightness(1.1); }
+        .btn-submit i { transition: transform 0.3s; }
+        .btn-submit:hover i { transform: translateX(5px); }
 
-        .footer-text { text-align: center; margin-top: 3rem; color: var(--text-secondary); font-size: 1rem; }
-        .footer-text a { color: var(--brand-green); text-decoration: none; font-weight: 800; margin-left: 0.5rem; }
-        .footer-text a:hover { text-decoration: underline; color: white; }
-
-        .hidden { display: none; }
+        .footer-text { text-align: center; margin-top: 3.5rem; color: var(--text-secondary); font-size: 1.05rem; }
+        .footer-text a { color: var(--brand-green); text-decoration: none; font-weight: 800; margin-left: 0.5rem; transition: filter 0.3s; }
+        .footer-text a:hover { filter: drop-shadow(0 0 5px var(--brand-glow)); }
 
         @media (max-width: 768px) {
-            .form-grid { grid-template-columns: 1fr; }
-            .auth-card { padding: 2.5rem 1.5rem; border-radius: 24px; }
-            .role-selector { flex-direction: column; gap: 1rem; }
+            body { padding: 1rem 0.75rem; }
+            .auth-card { padding: 2.5rem 1.25rem; border-radius: 32px; }
+            .auth-header { margin-bottom: 2.5rem; }
+            .auth-header .brand-logo { height: 45px; margin-bottom: 1.5rem; }
+            .auth-header h2 { font-size: 2rem; }
+            .auth-header p { font-size: 1rem; }
+            
+            .reg-step-box { margin-bottom: 2.5rem; }
+            .step-label { font-size: 0.65rem; gap: 0.75rem; margin-bottom: 1rem; }
+            
+            .role-selector { grid-template-columns: 1fr; gap: 1rem; }
+            .role-label { padding: 1.5rem; border-radius: 20px; }
+            .role-label i { font-size: 1.75rem; }
+            
+            .form-grid { grid-template-columns: 1fr; gap: 0.5rem; }
+            .form-group { margin-bottom: 1.25rem; }
+            .form-group[style*="grid-column: span 2"] { grid-column: span 1 !important; }
+            
+            .btn-submit { margin-top: 3rem; padding: 1.1rem; font-size: 1rem; border-radius: 18px; }
+            .footer-text { margin-top: 2.5rem; font-size: 0.95rem; }
         }
     </style>
 </head>
@@ -200,7 +276,7 @@
         <div class="auth-card">
             <div class="auth-header">
                 <div class="brand">
-                    <img th:src="@{/images/devNectar_logo.png}" alt="devNectar Logo" class="brand-logo" style="margin: 0 auto; height: 50px;">
+                    <img th:src="@{/images/devNectar_logo.png}" alt="devNectar Logo" class="brand-logo">
                 </div>
                 <h2>Create Your Account</h2>
                 <p>Join our professional developer network</p>
@@ -208,84 +284,148 @@
 
             <form th:action="@{/register}" th:object="${user}" method="post" enctype="multipart/form-data">
                 
-                <div class="section-title">Step 1: Choose Your Path</div>
-                <div class="role-selector">
-                    <div class="role-option">
-                        <input type="radio" id="role-employee" name="roleName" value="ROLE_EMPLOYEE" checked onclick="toggleRoleFields('ROLE_EMPLOYEE')">
-                        <label for="role-employee" class="role-label">
-                            <i class="fas fa-briefcase"></i>
-                            Staff Member
-                        </label>
-                    </div>
-                    <div class="role-option">
-                        <input type="radio" id="role-intern" name="roleName" value="ROLE_INTERN" onclick="toggleRoleFields('ROLE_INTERN')">
-                        <label for="role-intern" class="role-label">
-                            <i class="fas fa-user-graduate"></i>
-                            Intern Program
-                        </label>
-                    </div>
-                </div>
-
-                <div class="section-title">Step 2: Account Security</div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" th:field="*{fullName}" class="form-control" placeholder="e.g. Alexander Pierce" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" th:field="*{username}" class="form-control" placeholder="choose_username" required>
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label>Email Address</label>
-                        <input type="email" th:field="*{email}" class="form-control" placeholder="work@company.com" required>
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label>Password</label>
-                        <input type="password" th:field="*{password}" class="form-control" placeholder="••••••••••••" required>
+                <!-- STEP 1 -->
+                <div class="reg-step-box">
+                    <div class="step-label">Step 1: Choose Your Path</div>
+                    <div class="role-selector">
+                        <div class="role-option">
+                            <input type="radio" id="role-employee" name="roleName" value="ROLE_EMPLOYEE" checked onclick="toggleRoleFields('ROLE_EMPLOYEE')">
+                            <label for="role-employee" class="role-label">
+                                <i class="fas fa-briefcase"></i>
+                                <span>Staff Member</span>
+                            </label>
+                        </div>
+                        <div class="role-option">
+                            <input type="radio" id="role-intern" name="roleName" value="ROLE_INTERN" onclick="toggleRoleFields('ROLE_INTERN')">
+                            <label for="role-intern" class="role-label">
+                                <i class="fas fa-user-graduate"></i>
+                                <span>Intern Program</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
 
-                <div id="employee-fields">
-                    <div class="section-title">Step 3: Professional Profile</div>
+                <!-- STEP 2 -->
+                <div class="reg-step-box">
+                    <div class="step-label">Step 2: Account Security</div>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Employee ID</label>
-                            <input type="text" th:field="*{employeeExternalId}" class="form-control" placeholder="CN-2026-X">
+                            <label>Full Name</label>
+                            <div class="input-box">
+                                <input type="text" th:field="*{fullName}" class="form-control" placeholder="e.g. Alexander Pierce" required>
+                                <i class="fas fa-user-tag"></i>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label>Portfolio / LinkedIn</label>
-                            <input type="url" th:field="*{portfolioUrl}" class="form-control" placeholder="https://linkedin.com/in/...">
+                            <label>Username</label>
+                            <div class="input-box">
+                                <input type="text" th:field="*{username}" class="form-control" placeholder="choose_username" required>
+                                <i class="fas fa-at"></i>
+                            </div>
                         </div>
                         <div class="form-group" style="grid-column: span 2;">
-                            <label>Technology Stack</label>
-                            <input type="text" th:field="*{techStack}" class="form-control" placeholder="React, Java, Spring Boot, etc.">
+                            <label>Email Address</label>
+                            <div class="input-box">
+                                <input type="email" th:field="*{email}" class="form-control" placeholder="work@company.com" required>
+                                <i class="fas fa-envelope-open-text"></i>
+                            </div>
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Account Password</label>
+                            <div class="input-box">
+                                <input type="password" th:field="*{password}" class="form-control" placeholder="••••••••" required>
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="intern-fields" class="hidden">
-                    <div class="section-title">Step 3: Program Assignment</div>
+                <!-- STEP 3 -->
+                <div class="reg-step-box">
+                    <div class="step-label">Step 3: Professional Profile</div>
+                    
+                    <!-- Employee Fields -->
+                    <div id="employee-fields" class="role-section">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Employee ID</label>
+                                <div class="input-box">
+                                    <input type="text" name="employeeId" class="form-control" placeholder="CN-2026-X">
+                                    <i class="fas fa-id-card"></i>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Portfolio / LinkedIn</label>
+                                <div class="input-box">
+                                    <input type="url" th:field="*{portfolioUrl}" class="form-control" placeholder="https://linkedin.com/in/...">
+                                    <i class="fas fa-link"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Intern Fields -->
+                    <div id="intern-fields" class="role-section hidden">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>College / University</label>
+                                <div class="input-box">
+                                    <input type="text" name="college" class="form-control" placeholder="e.g. Stanford University">
+                                    <i class="fas fa-university"></i>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Graduation Year</label>
+                                <div class="input-box">
+                                    <input type="number" name="graduationYear" class="form-control" placeholder="2026">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-4">
+                        <label>Technology Stack</label>
+                        <div class="input-box">
+                            <input type="text" th:field="*{techStack}" class="form-control" placeholder="React, Java, Spring Boot, etc.">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label>Select Team Manager</label>
-                        <select name="managerId" class="form-control">
-                            <option value="">-- Choose Your Supervisor --</option>
-                            <option th:each="emp : ${employees}" th:value="${emp.id}" th:text="${emp.fullName}"></option>
-                        </select>
+                        <div class="input-box">
+                            <select name="managerId" class="form-control">
+                                <option value="">-- Choose Your Supervisor --</option>
+                                <option th:each="emp : ${employees}" th:value="${emp.id}" th:text="${emp.fullName}"></option>
+                            </select>
+                            <i class="fas fa-users-cog"></i>
+                        </div>
                     </div>
                 </div>
 
-                <div class="section-title">Step 4: Identification</div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Profile Photograph</label>
-                        <input type="file" name="profileImage" class="form-control" accept="image/*" required>
-                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.5rem;">Formats: JPG, PNG (Max 2MB)</div>
-                    </div>
-                    <div class="form-group">
-                        <label>Professional CV (PDF)</label>
-                        <input type="file" name="resumeFile" class="form-control" accept=".pdf" required>
-                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.5rem;">Only PDF format allowed</div>
+                <!-- STEP 4 -->
+                <div class="reg-step-box">
+                    <div class="step-label">Step 4: Identification</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Profile Photograph</label>
+                            <label for="profileImageInput" class="file-upload-box">
+                                <i class="fas fa-camera"></i>
+                                <span>Upload Portrait</span>
+                                <span class="file-hint">JPG, PNG (Max 2MB)</span>
+                            </label>
+                            <input type="file" id="profileImageInput" name="profileImage" class="hidden" accept="image/*" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Professional CV (PDF)</label>
+                            <label for="resumeFileInput" class="file-upload-box">
+                                <i class="fas fa-file-pdf"></i>
+                                <span>Submit Resume</span>
+                                <span class="file-hint">PDF format only</span>
+                            </label>
+                            <input type="file" id="resumeFileInput" name="resumeFile" class="hidden" accept=".pdf" required>
+                        </div>
                     </div>
                 </div>
 
@@ -314,5 +454,6 @@
             }
         }
     </script>
+    <script th:src="@{/js/theme-toggle.js}"></script>
 </body>
 </html>

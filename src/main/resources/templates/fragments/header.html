@@ -6,28 +6,29 @@
             <button id="hamburger" class="hamburger d-lg-none">
                 <i class="fas fa-bars"></i>
             </button>
-            <div class="page-title">
-                <h1 th:text="${pageTitle != null ? pageTitle : 'devNectar Portal'}" style="font-size: 1.25rem; font-weight: 800;">Dashboard</h1>
-                <p class="text-secondary d-none d-sm-block" style="font-size: 0.75rem;" th:text="${pageSubtitle != null ? pageSubtitle : 'Workforce management system'}">Overview</p>
+            <div class="page-title d-flex align-items-center gap-2">
+                <img th:src="@{/images/devNectar_logo.png}" alt="devNectar" class="brand-logo" style="height: 36px; width: auto;">
+                <h1 th:text="${pageTitle != null ? pageTitle : ''}" style="font-size: 1.25rem; font-weight: 800; display: inline-block;">Dashboard</h1>
+                <p class="text-secondary d-none d-sm-block ms-2" style="font-size: 0.75rem; border-left: 1px solid var(--border-color); padding-left: 0.75rem;" th:text="${pageSubtitle != null ? pageSubtitle : 'Force node management system'}">Overview</p>
             </div>
         </div>
 
-        <div class="header-actions">
+        <div class="header-actions d-flex align-items-center gap-2">
             <!-- Theme Toggle -->
-            <button id="theme-toggle" class="theme-toggle" title="Toggle Theme">
+            <button id="theme-toggle" class="theme-toggle d-none d-sm-flex" title="Toggle Theme">
                 <i class="fas fa-moon"></i>
             </button>
             
-            <!-- User Profile -->
-            <div class="user-profile" th:if="${currentUser != null}">
-                <div class="user-info text-end d-none d-md-flex flex-column">
+            <!-- User Profile with Dropdown -->
+            <div class="user-profile d-flex align-items-center" th:if="${currentUser != null}" id="userProfileToggle">
+                <div class="user-info text-end d-none d-md-flex flex-column me-2">
                     <span class="user-name fw-bold" th:text="${currentUser.username}" style="font-size: 0.85rem;">Username</span>
                     <div class="d-flex gap-1 justify-content-end">
                         <span th:each="role : ${currentUser.roles}" 
-                              th:text="${#strings.replace(role.name, 'ROLE_', '')}"
-                              class="badge"
-                              th:classappend="${role.name == 'ROLE_ADMIN' ? 'badge-danger' : (role.name == 'ROLE_EMPLOYEE' ? 'badge-primary' : 'badge-success')}"
-                              style="font-size: 0.55rem; padding: 2px 4px;">ADMIN</span>
+                               th:text="${#strings.replace(role.name, 'ROLE_', '')}"
+                               class="badge"
+                               th:classappend="${role.name == 'ROLE_ADMIN' ? 'badge-danger' : (role.name == 'ROLE_EMPLOYEE' ? 'badge-primary' : 'badge-success')}"
+                               style="font-size: 0.55rem; padding: 2px 4px;">ADMIN</span>
                     </div>
                 </div>
                 <div class="profile-img-wrapper">
@@ -35,10 +36,27 @@
                          alt="Profile" 
                          style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover;">
                 </div>
+
+                <!-- Dropdown Menu -->
+                <div class="profile-dropdown" id="profileDropdown">
+                    <a th:href="@{/profile}" class="dropdown-item">
+                        <i class="fas fa-user-cog"></i> My Profile
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <form th:action="@{/logout}" method="post" id="logoutForm">
+                        <a href="javascript:void(0)" onclick="document.getElementById('logoutForm').submit()" class="dropdown-item logout">
+                            <i class="fas fa-power-off"></i> Sign Out
+                        </a>
+                    </form>
+                </div>
             </div>
         </div>
+
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
         
-        <!-- Load Theme script -->
+        <!-- UI Interactivity Scripts -->
+        <script th:src="@{/js/portal-utils.js}"></script>
         <script th:src="@{/js/theme-toggle.js}"></script>
     </header>
 </body>

@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script>
+    (function() {
+        const theme = localStorage.getItem('devnectar_theme') || 'light';
+        const doc = document.documentElement;
+        if (theme === 'dark') doc.classList.add('dark-theme');
+        else doc.classList.add('light-theme');
+        doc.classList.add('no-transitions');
+        window.addEventListener('load', () => {
+            setTimeout(() => { doc.classList.remove('no-transitions'); }, 100);
+        });
+    })();
+</script>
     <title>Waiting for Approval | devNectar</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -10,23 +22,31 @@
             justify-content: center; 
             align-items: center; 
             min-height: 100vh;
-            background: #0a0f18;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
             margin: 0;
             overflow: hidden;
             position: relative;
+            transition: background 0.3s, color 0.3s;
         }
         
         .card {
-            background: rgba(30, 41, 59, 0.7);
+            background: var(--bg-card);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             padding: 4rem;
             border-radius: 32px;
             width: 100%;
             max-width: 550px;
-            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-color);
             text-align: center;
+        }
+
+        @media (max-width: 576px) {
+            .card { padding: 3rem 1.5rem; border-radius: 24px; }
+            .brand-logo { height: 40px !important; }
+            p { font-size: 1rem; }
         }
 
         .brand { font-size: 2.5rem; font-weight: 800; margin-bottom: 2rem; letter-spacing: -1px; }
@@ -63,5 +83,6 @@
             </button>
         </form>
     </div>
+    <script th:src="@{/js/theme-toggle.js}"></script>
 </body>
 </html>

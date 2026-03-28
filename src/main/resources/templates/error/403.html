@@ -1,8 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script>
+    (function() {
+        const theme = localStorage.getItem('devnectar_theme') || 'light';
+        const doc = document.documentElement;
+        if (theme === 'dark') doc.classList.add('dark-theme');
+        else doc.classList.add('light-theme');
+        doc.classList.add('no-transitions');
+        window.addEventListener('load', () => {
+            setTimeout(() => { doc.classList.remove('no-transitions'); }, 100);
+        });
+    })();
+</script>
     <meta charset="UTF-8">
-    <title>403 Forbidden | CloudNex</title>
+    <title>403 Forbidden | devNectar</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
         body { justify-content: center; align-items: center; text-align: center; }
@@ -31,5 +43,6 @@
         </p>
         <a th:href="@{/dashboard}" class="btn btn-primary">Return to Dashboard</a>
     </div>
+    <script th:src='@{/js/theme-toggle.js}'></script>
 </body>
 </html>

@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script>
+    (function() {
+        const theme = localStorage.getItem('devnectar_theme') || 'light';
+        const doc = document.documentElement;
+        if (theme === 'dark') doc.classList.add('dark-theme');
+        else doc.classList.add('light-theme');
+        doc.classList.add('no-transitions');
+        window.addEventListener('load', () => {
+            setTimeout(() => { doc.classList.remove('no-transitions'); }, 100);
+        });
+    })();
+</script>
     <meta charset="UTF-8">
     <title>Registration Success | devNectar</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,26 +24,33 @@
             justify-content: center; 
             align-items: center; 
             min-height: 100vh;
-            background: #0a0f18;
+            background-color: var(--bg-body);
             font-family: 'Outfit', sans-serif;
-            color: white;
+            color: var(--text-primary);
             margin: 0;
             overflow: hidden;
             position: relative;
+            transition: background 0.3s, color 0.3s;
         }
         
         .success-card {
-            background: rgba(30, 41, 59, 0.7);
+            background: var(--bg-card);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             padding: 4rem;
             border-radius: 32px;
             width: 100%;
             max-width: 550px;
-            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-color);
             text-align: center;
             animation: cardEntrance 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (max-width: 576px) {
+            .success-card { padding: 2.5rem 1.5rem; border-radius: 24px; }
+            h2 { font-size: 1.75rem; }
+            p { font-size: 1rem; margin-bottom: 2rem; }
         }
 
         @keyframes cardEntrance {
@@ -80,10 +99,14 @@
 </head>
 <body>
     <div class="success-card">
+        <div class="brand" style="margin-bottom: 2.5rem; text-align: center;">
+            <img th:src="@{/images/devNectar_logo.png}" alt="Logo" style="height: 50px;">
+        </div>
         <div class="success-icon">✓</div>
         <h2>Registration Successful!</h2>
         <p>Your account has been created successfully. Please wait for an administrator to approve your registration. You will be able to log in once your account is enabled.</p>
         <a th:href="@{/login}" class="login-btn">Back to Login</a>
     </div>
+    <script th:src="@{/js/theme-toggle.js}"></script>
 </body>
 </html>
