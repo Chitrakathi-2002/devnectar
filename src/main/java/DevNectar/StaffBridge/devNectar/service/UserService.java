@@ -52,16 +52,23 @@ public class UserService {
     public boolean softDeleteUser(String username, String password) {
         User user = findByUsername(username);
         if (passwordEncoder.matches(password, user.getPassword())) {
-            userRepository.softDeleteUserById(user.getId());
+            boolean isAdmin = user.getRoles().stream()
+                    .anyMatch(r -> r.getName().equals("ROLE_ADMIN"));
             
-            // Professional Feedback
-            boolean isIntern = user.getRoles().stream()
-                    .anyMatch(r -> r.getName().equals("ROLE_INTERN"));
-            if (isIntern && user.getManager() != null) {
-                System.out.println("User [" + user.getFullName() + "] has deactivated their account.");
+            if (isAdmin) {
+                userRepository.softDeleteUserById(user.getId());
+                return true;
+            } else {
+                // Employee/Intern: Request Deletion
+                user.setRegistrationStatus("DELETION_PENDING");
+                user.setEnabled(false); // Lock the account until admin acts
+                user.setDeactivatedAt(java.time.LocalDateTime.now());
+                userRepository.save(user);
+                
+                // Professional Alert
+                System.out.println("USER [ID: " + user.getId() + "] has requested account termination. Pending Admin Audit.");
+                return true;
             }
-            
-            return true;
         }
         return false;
     }

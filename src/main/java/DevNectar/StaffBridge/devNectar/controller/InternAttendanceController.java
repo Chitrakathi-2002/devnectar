@@ -46,7 +46,16 @@ public class InternAttendanceController {
     @PostMapping("/punch-out")
     public String punchOut(Authentication authentication) {
         attendanceService.punchOut(authentication.getName());
-        return "redirect:/intern/dashboard";
+        return "redirect:/intern/attendance";
+    }
+
+    @PostMapping("/punch-out-with-report")
+    public String punchOutWithReport(Authentication authentication,
+                                     @RequestParam("title") String title,
+                                     @RequestParam("description") String description,
+                                     @RequestParam("hours") Double hours) {
+        attendanceService.punchOutWithReport(authentication.getName(), title, description, hours);
+        return "redirect:/intern/attendance";
     }
 
     @PostMapping("/request-late")

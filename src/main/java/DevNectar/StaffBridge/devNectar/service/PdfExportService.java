@@ -42,10 +42,19 @@ public class PdfExportService {
             PdfWriter.getInstance(document, out);
             document.open();
 
-            // 1. Branding Header
-            Paragraph brand = new Paragraph("devNectar", BRAND_FONT);
-            brand.setAlignment(Element.ALIGN_RIGHT);
-            document.add(brand);
+            // 1. Branding Header (Logo)
+            try {
+                org.springframework.core.io.ClassPathResource logoRes = new org.springframework.core.io.ClassPathResource("static/images/devNectar_logo.png");
+                Image logo = Image.getInstance(logoRes.getURL());
+                logo.scaleToFit(120, 50);
+                logo.setAlignment(Element.ALIGN_RIGHT);
+                document.add(logo);
+            } catch (Exception e) {
+                // Fallback to text if image fails
+                Paragraph brand = new Paragraph("devNectar", BRAND_FONT);
+                brand.setAlignment(Element.ALIGN_RIGHT);
+                document.add(brand);
+            }
 
             // 2. Report Header
             Paragraph title = new Paragraph(reportTitle != null ? reportTitle : "Detailed Attendance History", TITLE_FONT);

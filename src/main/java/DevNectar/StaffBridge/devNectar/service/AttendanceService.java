@@ -27,10 +27,21 @@ public class AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
+    private final DailyReportService dailyReportService;
 
-    public AttendanceService(AttendanceRepository attendanceRepository, UserRepository userRepository) {
+    public AttendanceService(AttendanceRepository attendanceRepository, UserRepository userRepository, DailyReportService dailyReportService) {
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
+        this.dailyReportService = dailyReportService;
+    }
+
+    @Transactional
+    public void punchOutWithReport(String username, String title, String description, Double hours) {
+        // Submit the report
+        dailyReportService.submitReport(username, title, description, hours);
+        
+        // Then perform the punch-out
+        punchOut(username);
     }
 
     @Transactional
@@ -46,8 +57,8 @@ public class AttendanceService {
             return;
         }
 
-        // Auto Check-In window: 11:00 AM - 11:30 AM
-        if (now.isAfter(AUTO_CHECKIN_START) && now.isBefore(AUTO_CHECKIN_END)) {
+        // Auto Check-In: If login is after 11:00 AM
+        if (now.isAfter(AUTO_CHECKIN_START)) {
             Attendance attendance = Attendance.builder()
                     .user(user)
                     .date(today)
@@ -330,6 +341,8 @@ public class AttendanceService {
         
         return attendanceRepository.getFilteredAttendance(userId, start, end).stream()
                 .filter(a -> !a.getUser().getUsername().equalsIgnoreCase("admin"))
+                .sorted(Comparator.comparing(Attendance::getDate).reversed()
+                        .thenComparing(a -> a.getCheckInTime() != null ? a.getCheckInTime() : LocalTime.MIN, Comparator.reverseOrder()))
                 .collect(Collectors.toList());
     }
 
@@ -349,6 +362,8 @@ public class AttendanceService {
     public List<Attendance> getAllAttendance() {
         return attendanceRepository.findAll().stream()
                 .filter(a -> !a.getUser().getUsername().equalsIgnoreCase("admin"))
+                .sorted(Comparator.comparing(Attendance::getDate).reversed()
+                        .thenComparing(a -> a.getCheckInTime() != null ? a.getCheckInTime() : LocalTime.MIN, Comparator.reverseOrder()))
                 .collect(Collectors.toList());
     }
 

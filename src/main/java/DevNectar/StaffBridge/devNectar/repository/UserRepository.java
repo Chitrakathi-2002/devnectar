@@ -13,6 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     java.util.List<User> findByFullNameContainingIgnoreCaseAndIsDeletedFalse(String fullName);
     java.util.List<User> findByRoles_NameAndIsDeletedFalse(String roleName);
     long countByRoles_NameAndIsEnabledTrueAndIsDeletedFalse(String roleName);
+    long countByManagerAndIsDeletedFalse(User manager);
     
     @org.springframework.data.jpa.repository.Query("SELECT COUNT(u) FROM User u JOIN u.roles r WHERE r.name = 'ROLE_EMPLOYEE' AND u.isEnabled = true AND u.isDeleted = false")
     long countAllActiveEmployees();

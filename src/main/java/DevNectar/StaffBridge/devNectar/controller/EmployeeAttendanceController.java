@@ -53,6 +53,15 @@ public class EmployeeAttendanceController {
         return "redirect:/employee/attendance";
     }
 
+    @PostMapping("/punch-out-with-report")
+    public String punchOutWithReport(Authentication authentication,
+                                     @RequestParam("title") String title,
+                                     @RequestParam("description") String description,
+                                     @RequestParam("hours") Double hours) {
+        attendanceService.punchOutWithReport(authentication.getName(), title, description, hours);
+        return "redirect:/employee/attendance";
+    }
+
     @PostMapping("/request-late")
     public String requestLate(Authentication authentication) {
         attendanceService.requestLateArrival(authentication.getName());

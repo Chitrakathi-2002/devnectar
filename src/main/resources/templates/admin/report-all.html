@@ -16,6 +16,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Reports History | devNectar Admin</title>
+    <link rel="icon" type="image/png" th:href="@{/images/dev.png}">
+    
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -70,28 +72,45 @@
 
         .inspect-btn:hover { background: #3b82f6; color: white; transform: translateY(-3px); }
 
-        /* IMPROVED: PREMIUM AUDIT DROPDOWN */
+        /* PREMIUM THEME-AWARE AUDIT DROPDOWN */
         .dropdown { position: relative; }
 
         .dropdown-menu-audit {
             display: none;
             position: absolute;
-            background: rgba(15, 23, 42, 0.95) !important;
-            backdrop-filter: blur(20px) !important;
-            -webkit-backdrop-filter: blur(20px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            background: var(--bg-surface) !important;
+            border: 1px solid var(--border-color) !important;
             border-radius: 20px !important;
             padding: 0.75rem !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255,255,255,0.05) !important;
-            min-width: 240px !important;
-            margin-top: 12px !important;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.2) !important;
+            min-width: 280px !important;
+            margin-top: 10px !important;
+            right: 0 !important;
             z-index: 10000 !important;
             transform-origin: top right;
-            animation: dropdownScale 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: dropdownScale 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .dark-theme .dropdown-menu-audit {
+            background: #1e293b !important;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.6) !important;
+        }
+
+        .dropdown-menu-audit::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: 32px;
+            width: 12px;
+            height: 12px;
+            background: inherit;
+            border-left: 1px solid var(--border-color);
+            border-top: 1px solid var(--border-color);
+            transform: rotate(45deg);
         }
 
         @keyframes dropdownScale {
-            from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+            from { opacity: 0; transform: scale(0.9) translateY(-20px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
@@ -100,19 +119,19 @@
         }
 
         .dropdown-item-audit {
-            padding: 0.85rem 1.25rem !important;
+            padding: 0.85rem 1rem !important;
             font-size: 0.85rem !important;
             font-weight: 700 !important;
             border-radius: 14px !important;
-            color: var(--text-secondary) !important;
+            color: var(--text-primary) !important;
             display: flex !important;
             align-items: center !important;
-            gap: 12px !important;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            gap: 14px !important;
+            transition: all 0.2s ease !important;
             background: transparent !important;
             border: none !important;
             width: 100% !important;
-            margin-bottom: 4px !important;
+            margin-bottom: 5px !important;
             cursor: pointer !important;
             text-align: left !important;
         }
@@ -121,19 +140,47 @@
 
         .dropdown-item-audit:hover {
             background: var(--glass-bg) !important;
-            color: var(--text-primary) !important;
-            transform: translateX(4px);
+            color: var(--brand-green) !important;
+            transform: translateX(6px);
         }
 
-        .dropdown-item-audit i {
-            width: 20px;
-            text-align: center;
-            font-size: 1rem;
-            transition: transform 0.2s;
+        .dropdown-item-audit .icon-box {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: var(--glass-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            transition: all 0.3s;
         }
 
-        .dropdown-item-audit:hover i {
-            transform: scale(1.1);
+        .dropdown-item-audit:hover .icon-box {
+            background: var(--brand-green);
+            color: white;
+            box-shadow: 0 4px 12px var(--brand-glow);
+        }
+
+        .dropdown-divider-audit {
+            height: 1px;
+            background: var(--border-color);
+            margin: 0.5rem 0.25rem;
+            opacity: 0.5;
+        }
+
+        /* FIX: Prevent clipping */
+        .card-no-clip {
+            padding: 0 !important;
+            overflow: visible !important; 
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+        }
+
+        .table-responsive-visible {
+            overflow: visible !important;
+            border-radius: 20px;
         }
 
         .label-micro {
@@ -196,8 +243,8 @@
                 </form>
             </div>
 
-            <div class="card p-0" style="padding: 0 !important; overflow: hidden; border: 1px solid var(--border-color); border-radius: 24px;">
-                <div class="table-responsive">
+            <div class="card card-no-clip">
+                <div class="table-responsive table-responsive-visible">
                     <table class="data-table">
                         <thead>
                             <tr style="background: rgba(0,0,0,0.03);">
@@ -205,7 +252,6 @@
                                 <th>Intern Name</th>
                                 <th>Reviewer</th>
                                 <th>Status</th>
-                                <th class="text-center">Details</th>
                                 <th class="text-end" style="padding-right: 2.5rem;">Actions</th>
                             </tr>
                         </thead>
@@ -234,34 +280,42 @@
                                         <span th:text="${report.status}">SUBMITTED</span>
                                     </div>
                                 </td>
-                                <td class="text-center">
-                                    <button class="inspect-btn mx-auto" 
-                                            th:data-intern="${report.intern.fullName}"
-                                            th:data-title="${report.title}"
-                                            th:data-desc="${report.description}"
-                                            th:data-manager="${report.manager != null ? report.manager.fullName : 'N/A'}"
-                                            th:data-feedback="${report.managerFeedback}"
-                                            onclick="viewAuditDetails(this)">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </td>
                                 <td class="text-end" style="padding-right: 2.5rem;">
                                     <div class="dropdown">
                                         <button class="btn btn-primary btn-sm px-4" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 12px; font-weight: 800; height: 48px;">
                                             SELECT ACTION <i class="fas fa-chevron-down ms-2"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-audit dropdown-menu-end">
+                                            <!-- View Details Integrated -->
+                                            <button type="button" class="dropdown-item-audit" 
+                                                    th:data-intern="${report.intern.fullName}"
+                                                    th:data-title="${report.title}"
+                                                    th:data-desc="${report.description}"
+                                                    th:data-manager="${report.manager != null ? report.manager.fullName : 'N/A'}"
+                                                    th:data-feedback="${report.managerFeedback}"
+                                                    onclick="viewAuditDetails(this)">
+                                                <div class="icon-box"><i class="fas fa-eye text-info"></i></div>
+                                                View Detailed Audit
+                                            </button>
+
+                                            <div class="dropdown-divider-audit"></div>
+
                                             <form th:action="@{/employee/report/action/{id}(id=${report.id})}" method="post" style="display: block; margin: 0;">
                                                 <input type="hidden" name="action" value="APPROVE">
                                                 <button type="submit" class="dropdown-item-audit">
-                                                    <i class="fas fa-check-circle text-success"></i> Approve Now
+                                                    <div class="icon-box"><i class="fas fa-check-circle text-success"></i></div>
+                                                    Approve Report
                                                 </button>
                                             </form>
+
                                             <button type="button" class="dropdown-item-audit" th:onclick="'openOverrideModal(' + ${report.id} + ', \'REVISION\')'">
-                                                <i class="fas fa-redo text-warning"></i> Ask for Revision
+                                                <div class="icon-box"><i class="fas fa-redo text-warning"></i></div>
+                                                Request Revision
                                             </button>
+
                                             <button type="button" class="dropdown-item-audit" th:onclick="'openOverrideModal(' + ${report.id} + ', \'CANCEL\')'">
-                                                <i class="fas fa-times-circle text-danger"></i> Cancel Report
+                                                <div class="icon-box"><i class="fas fa-times-circle text-danger"></i></div>
+                                                Cancel Submission
                                             </button>
                                         </div>
                                     </div>
@@ -362,3 +416,5 @@
     
 </body>
 </html>
+
+

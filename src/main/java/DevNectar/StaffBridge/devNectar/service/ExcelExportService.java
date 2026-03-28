@@ -15,11 +15,14 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.util.IOUtils;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -29,6 +32,29 @@ public class ExcelExportService {
     public ByteArrayInputStream exportAttendance(List<Attendance> attendanceList, String reportTitle) {
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Detailed Attendance");
+
+            // --- LOGO ---
+            try {
+                InputStream is = new ClassPathResource("static/images/devNectar_logo.png").getInputStream();
+                byte[] bytes = IOUtils.toByteArray(is);
+                int pictureIdx = workbook.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
+                is.close();
+
+                CreationHelper helper = workbook.getCreationHelper();
+                Drawing drawing = sheet.createDrawingPatriarch();
+                ClientAnchor anchor = helper.createClientAnchor();
+                
+                // Position logo in top-right
+                anchor.setCol1(5); // Column F
+                anchor.setRow1(0);
+                anchor.setCol2(7); // Ends at column H
+                anchor.setRow2(2);
+                
+                Picture pict = drawing.createPicture(anchor, pictureIdx);
+                pict.resize(1.0, 1.0);
+            } catch (Exception e) {
+                // Ignore logo if fails
+            }
 
             // --- STYLES ---
             // Title Style

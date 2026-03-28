@@ -47,15 +47,20 @@ public class DashboardController {
     @PreAuthorize("hasRole('ADMIN')")
     public String adminDashboard(Model model) {
         List<User> pending = userRepository.findByRegistrationStatus("PENDING");
+        List<User> deletionRequests = userRepository.findByRegistrationStatus("DELETION_PENDING");
         long employeeCount = userRepository.countAllActiveEmployees();
         long internCount = userRepository.countAllActiveInterns();
         
         // Dynamic Counts for "Present Today"
         java.time.LocalDate today = java.time.LocalDate.now();
-        long internsPresent = attendanceService.getAllActiveStaff().stream().filter(u -> attendanceService.getMyAttendance(u.getUsername()).stream().anyMatch(a -> a.getDate().equals(today))).count();
-        long reportsToday = dailyReportService.getAllReports().stream().filter(r -> r.getSubmissionDate().equals(today)).count();
+        long internsPresent = attendanceService.getAllActiveStaff().stream()
+                .filter(u -> attendanceService.getMyAttendance(u.getUsername()).stream()
+                .anyMatch(a -> a.getDate().equals(today))).count();
+        long reportsToday = dailyReportService.getAllReports().stream()
+                .filter(r -> r.getSubmissionDate().equals(today)).count();
         
         model.addAttribute("pendingUsers", pending);
+        model.addAttribute("deletionRequests", deletionRequests);
         model.addAttribute("employeeCount", employeeCount);
         model.addAttribute("internCount", internCount);
         model.addAttribute("internsPresent", internsPresent);
@@ -82,10 +87,57 @@ public class DashboardController {
         return "redirect:/admin/dashboard";
     }
 
+    @PostMapping("/admin/terminate/approve/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String approveTermination(@PathVariable(value = "id") Long id) {
+        userRepository.softDeleteUserById(id);
+        return "redirect:/admin/dashboard";
+    }
+
+    @PostMapping("/admin/terminate/reject/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String rejectTermination(@PathVariable(value = "id") Long id) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setEnabled(true);
+        user.setRegistrationStatus("APPROVED");
+        user.setDeactivatedAt(null);
+        userRepository.save(user);
+        return "redirect:/admin/dashboard";
+    }
+
     @GetMapping("/employee/dashboard")
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public String employeeDashboard(Authentication authentication) {
-        attendanceService.checkAndAutoPunchIn(authentication.getName());
+    public String employeeDashboard(Authentication authentication, Model model) {
+        String username = authentication.getName();
+        User currentUser = userRepository.findByUsername(username).orElseThrow();
+        attendanceService.checkAndAutoPunchIn(username);
+
+        long teamCount = userRepository.countByManagerAndIsDeletedFalse(currentUser);
+        long pendingApprovals = dailyReportService.getPendingReportsForManager(username).size();
+        
+        // Precise team attendance rate calculation
+        int monthlyRate = 100;
+        if (teamCount > 0) {
+            LocalDate firstOfMonth = LocalDate.now().withDayOfMonth(1);
+            long totalPresent = attendanceService.getTeamAttendance(currentUser.getId()).stream()
+                    .filter(a -> !a.getDate().isBefore(firstOfMonth))
+                    .count();
+            int daysPassed = LocalDate.now().getDayOfMonth();
+            monthlyRate = (int) Math.min(100, (totalPresent * 100.0) / (teamCount * daysPassed));
+        }
+
+        java.util.List<DevNectar.StaffBridge.devNectar.entity.Attendance> myHistory = attendanceService.getMyAttendance(username);
+        LocalDate today = LocalDate.now();
+        DevNectar.StaffBridge.devNectar.entity.Attendance todayRecord = myHistory.stream()
+                .filter(a -> a.getDate().equals(today))
+                .findFirst()
+                .orElse(null);
+
+        model.addAttribute("teamCount", teamCount);
+        model.addAttribute("pendingApprovals", pendingApprovals);
+        model.addAttribute("monthlyRate", monthlyRate);
+        model.addAttribute("todayAttendance", todayRecord);
+        
         return "employee/dashboard";
     }
 
